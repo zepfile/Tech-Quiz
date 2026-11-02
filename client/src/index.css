@@ -9,8 +9,8 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: #000000;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -ms-overflow-style: none !important;

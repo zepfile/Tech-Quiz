@@ -37,12 +37,12 @@ function LandingPage() {
     loadCatalog();
   }, []);
 
-  // Day & Night mode state with localStorage persistence
+  // Day & Night mode state with localStorage persistence (Default: Pure OLED Night mode)
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved =
       localStorage.getItem("techquiz_theme") ||
       localStorage.getItem("techquiz_landing_theme");
-    return saved ? saved === "dark" : false; // Clean Day mode default
+    return saved === "light" ? false : true; // Pure OLED Night mode by default
   });
 
   const toggleTheme = () => {

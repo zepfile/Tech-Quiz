@@ -17,7 +17,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     const saved =
       localStorage.getItem("techquiz_theme") ||
       localStorage.getItem("techquiz_landing_theme");
-    return saved ? saved === "dark" : false; // Default: Clean Day mode
+    return saved === "light" ? false : true; // Default: Pure OLED Night mode
   });
 
   const toggleTheme = () => {
