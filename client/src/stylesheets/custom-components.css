@@ -123,3 +123,35 @@
     transform: rotate(360deg);
   }
 }
+
+/* Profile Modal Modern Styling */
+.profile-modal-modern .ant-modal-content {
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+.profile-modal-modern .ant-modal-close {
+  display: none !important;
+}
+
+.profile-modal-modern .ant-tabs-nav {
+  margin-bottom: 18px !important;
+}
+
+.profile-modal-modern .ant-tabs-tab {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  padding: 10px 16px !important;
+}
+
+.profile-modal-modern .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #4f46e5 !important;
+}
+
+.profile-modal-modern .ant-tabs-ink-bar {
+  background: #4f46e5 !important;
+  height: 3px !important;
+  border-radius: 3px !important;
+}

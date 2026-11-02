@@ -142,6 +142,75 @@ router.post("/get-user-info", authMiddleware, async (req, res) => {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: error,
+      success: false,
+    });
+  }
+});
+
+// update user profile (name and/or password)
+router.post("/update-profile", authMiddleware, async (req, res) => {
+  try {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const { name, oldPassword, newPassword } = req.body;
+    const userId = req.body.userId;
+
+    let user = null;
+    if (isMongoConnected) {
+      user = await User.findById(userId);
+    } else {
+      user = memoryStore.users.find((u) => u._id === userId);
+    }
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found", success: false });
+    }
+
+    // Update name
+    if (name && name.trim()) {
+      user.name = name.trim();
+    }
+
+    // Update password if oldPassword is provided
+    if (oldPassword && newPassword) {
+      const validPassword = await bcrypt.compare(oldPassword, user.password);
+      if (!validPassword) {
+        return res.status(200).send({
+          message: "Current password does not match",
+          success: false,
+        });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(200).send({
+          message: "New password must be at least 6 characters",
+          success: false,
+        });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    if (isMongoConnected) {
+      await user.save();
+    }
+
+    res.send({
+      message: "Profile updated successfully",
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {

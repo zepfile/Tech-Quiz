@@ -6,13 +6,22 @@ import { SetUser } from "../redux/usersSlice.js";
 import { useNavigate } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import { BrandLogo } from "./TechIcons";
+import ProfileModal from "./ProfileModal";
 
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { user } = useSelector((state) => state.users);
   const [menu, setMenu] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const isAdmin = Boolean(user?.isAdmin);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    navigate(isAdmin ? "/admin/login" : "/login");
+  };
 
   const userMenu = [
     {
@@ -28,13 +37,16 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       onClick: () => navigate("/user/reports"),
     },
     {
+      title: "My Profile",
+      paths: ["/profile"],
+      icon: <i className="ri-user-3-line"></i>,
+      onClick: () => setShowProfileModal(true),
+    },
+    {
       title: "Sign Out",
       paths: ["/logout"],
       icon: <i className="ri-logout-box-r-line"></i>,
-      onClick: () => {
-        localStorage.removeItem("token");
-        navigate("/login");
-      },
+      onClick: handleSignOut,
     },
   ];
 
@@ -58,6 +70,12 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       onClick: () => navigate("/admin/reports"),
     },
     {
+      title: "Admin Profile",
+      paths: ["/profile"],
+      icon: <i className="ri-shield-user-line"></i>,
+      onClick: () => setShowProfileModal(true),
+    },
+    {
       title: "Candidate View Preview",
       paths: ["/"],
       icon: <i className="ri-eye-line"></i>,
@@ -67,10 +85,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       title: "Sign Out",
       paths: ["/logout"],
       icon: <i className="ri-logout-box-r-line"></i>,
-      onClick: () => {
-        localStorage.removeItem("token");
-        navigate("/admin/login");
-      },
+      onClick: handleSignOut,
     },
   ];
 
@@ -136,16 +151,14 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     return false;
   };
 
-  const isAdmin = Boolean(user?.isAdmin);
-
   return (
     <div className="layout">
       <div className="flex gap-2 w-full h-full">
         {/* Sidebar */}
         <div
-          className="sidebar"
+          className={`sidebar ${collapsed ? "collapsed" : ""}`}
           style={{
-            width: collapsed ? "80px" : "240px",
+            width: collapsed ? "76px" : "240px",
             background: isAdmin
               ? "linear-gradient(180deg, #130f26 0%, #0f172a 100%)"
               : "#0f172a",
@@ -154,7 +167,9 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           {/* Brand header */}
           <div
             className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60 cursor-pointer"
+            style={{ justifyContent: collapsed ? "center" : "flex-start" }}
             onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
+            title="TechQuiz Home"
           >
             <BrandLogo size={36} />
             {!collapsed && (
@@ -176,6 +191,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
             )}
           </div>
 
+          {/* Navigation Menu */}
           <div className="menu">
             {menu.map((item, index) => {
               return (
@@ -193,6 +209,88 @@ function ProtectedRoute({ children, requireAdmin = false }) {
               );
             })}
           </div>
+
+          {/* Bottom Sidebar User Profile Card */}
+          {user && (
+            <div
+              className="sidebar-user-footer"
+              onClick={() => setShowProfileModal(true)}
+              title="Click to view full profile & settings"
+              style={{
+                marginTop: "auto",
+                padding: collapsed ? "10px 0" : "12px",
+                borderRadius: "12px",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: collapsed ? "center" : "flex-start",
+                gap: "10px",
+                transition: "all 0.2s ease-in-out",
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: isAdmin ? "#7e22ce" : "#0284c7",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  flexShrink: 0,
+                }}
+              >
+                {user?.name ? user.name[0].toUpperCase() : "U"}
+              </div>
+              {!collapsed && (
+                <div style={{ overflow: "hidden", flex: 1 }}>
+                  <div
+                    style={{
+                      color: "#f8fafc",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.name}
+                  </div>
+                  <div
+                    style={{
+                      color: "#94a3b8",
+                      fontSize: "11px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "#34d399",
+                        display: "inline-block",
+                      }}
+                    ></span>
+                    {isAdmin ? "Admin • Profile" : "Online • Profile"}
+                  </div>
+                </div>
+              )}
+              {!collapsed && (
+                <i
+                  className="ri-arrow-right-s-line"
+                  style={{ color: "#94a3b8", fontSize: 18 }}
+                ></i>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Main Body */}
@@ -203,6 +301,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
               <i
                 className={collapsed ? "ri-menu-unfold-line" : "ri-menu-fold-line"}
                 onClick={() => setCollapsed(!collapsed)}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               ></i>
               <span className="text-lg font-bold text-slate-800">
                 {isAdmin
@@ -211,7 +310,16 @@ function ProtectedRoute({ children, requireAdmin = false }) {
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Clickable Header Profile */}
+            <div
+              className="flex items-center gap-3 cursor-pointer user-header-profile"
+              onClick={() => setShowProfileModal(true)}
+              title="Click to view full profile & account details"
+              style={{
+                padding: "4px 10px",
+                borderRadius: "12px",
+              }}
+            >
               <div className="text-right">
                 <div className="text-sm font-semibold text-slate-800">
                   {user?.name || "User"}
@@ -229,7 +337,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                 </span>
               </div>
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border"
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-sm"
                 style={{
                   backgroundColor: isAdmin ? "#f3e8ff" : "#e0e7ff",
                   color: isAdmin ? "#7e22ce" : "#4338ca",
@@ -245,6 +353,14 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           <div className="content">{children}</div>
         </div>
       </div>
+
+      {/* Modern Profile Modal */}
+      <ProfileModal
+        visible={showProfileModal}
+        onCancel={() => setShowProfileModal(false)}
+        user={user}
+        onLogout={handleSignOut}
+      />
     </div>
   );
 }
