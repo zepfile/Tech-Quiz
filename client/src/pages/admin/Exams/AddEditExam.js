@@ -101,7 +101,7 @@ function AddEditExam() {
       message.warning("No questions available to export.");
       return;
     }
-    const headers = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Option"];
+    const headers = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Option", "Explanation"];
     const rows = examData.questions.map((q) => [
       q.name,
       q.options?.A || "",
@@ -109,6 +109,7 @@ function AddEditExam() {
       q.options?.C || "",
       q.options?.D || "",
       q.correctOption || "",
+      q.explanation || "",
     ]);
 
     const csvContent = [
@@ -190,6 +191,20 @@ function AddEditExam() {
           Option {text}
         </Tag>
       ),
+    },
+    {
+      title: "Concept Explanation",
+      dataIndex: "explanation",
+      ellipsis: true,
+      render: (text) =>
+        text ? (
+          <span style={{ fontSize: 12, color: "#475569" }} title={text}>
+            <i className="ri-lightbulb-fill" style={{ color: "#f59e0b", marginRight: 4 }}></i>
+            {text}
+          </span>
+        ) : (
+          <span className="text-muted text-xs">—</span>
+        ),
     },
     {
       title: "Action",
@@ -342,6 +357,22 @@ function AddEditExam() {
                         help="Minimum marks needed to pass"
                       >
                         <input type="number" min={1} />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24} md={8}>
+                      <Form.Item
+                        label="Negative Marking"
+                        name="negativeMarks"
+                        help="Penalty deducted per wrong answer"
+                      >
+                        <select>
+                          <option value={0}>0 (No Negative Penalty)</option>
+                          <option value={0.25}>-0.25 Marks (25% penalty)</option>
+                          <option value={0.33}>-0.33 Marks (33% penalty)</option>
+                          <option value={0.5}>-0.50 Marks (50% penalty)</option>
+                          <option value={1}>-1.00 Mark (Full deduction)</option>
+                        </select>
                       </Form.Item>
                     </Col>
                   </Row>

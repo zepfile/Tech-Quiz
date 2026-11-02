@@ -155,3 +155,10 @@
   height: 3px !important;
   border-radius: 3px !important;
 }
+
+/* Mobile Responsiveness Utility */
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}

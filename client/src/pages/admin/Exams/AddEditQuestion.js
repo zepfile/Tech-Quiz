@@ -27,6 +27,7 @@ function AddEditQuestion({
           C: values.C,
           D: values.D,
         },
+        explanation: values.explanation || "",
         exam: examId,
       };
 
@@ -99,6 +100,7 @@ function AddEditQuestion({
           C: selectedQuestion?.options?.C || "",
           D: selectedQuestion?.options?.D || "",
           correctOption: selectedQuestion?.correctOption || "A",
+          explanation: selectedQuestion?.explanation || "",
         }}
       >
         <Form.Item
@@ -169,6 +171,22 @@ function AddEditQuestion({
             </Col>
           </Row>
         </div>
+
+        <Form.Item
+          name="explanation"
+          label={
+            <span className="font-semibold text-gray-800 flex items-center gap-1">
+              <i className="ri-lightbulb-line" style={{ color: "#f59e0b" }}></i> Answer Explanation / Concept Hint (Optional)
+            </span>
+          }
+          help="Detailed technical reasoning displayed to candidates during post-exam review."
+        >
+          <textarea
+            rows={3}
+            placeholder="e.g. const declarations create block-scoped immutable bindings that cannot be reassigned."
+            style={{ width: "100%", height: 75 }}
+          />
+        </Form.Item>
 
         <div className="flex justify-end gap-3 pt-2 border-t">
           <button

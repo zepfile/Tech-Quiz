@@ -12,7 +12,6 @@ export const escapeCSV = (val) => {
 
 // Trigger browser download for CSV string
 export const downloadCSV = (filename, content) => {
-  // UTF-8 BOM so Excel opens it with correct column encoding and special characters
   const bom = "\uFEFF";
   const blob = new Blob([bom + content], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -25,9 +24,17 @@ export const downloadCSV = (filename, content) => {
   URL.revokeObjectURL(url);
 };
 
-// Generate standard questions template CSV
+// Generate standard questions template CSV with Explanation
 export const getQuestionsSampleCSV = () => {
-  const headers = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Option"];
+  const headers = [
+    "Question",
+    "Option A",
+    "Option B",
+    "Option C",
+    "Option D",
+    "Correct Option",
+    "Explanation",
+  ];
   const sampleRows = [
     [
       "What is the output of typeof null in JavaScript?",
@@ -36,6 +43,7 @@ export const getQuestionsSampleCSV = () => {
       "undefined",
       "number",
       "B",
+      "In JavaScript, typeof null returning 'object' is a well-known historical bug dating back to the first implementation in 1995.",
     ],
     [
       "Which React Hook is primarily used for side effects like API calls and subscriptions?",
@@ -44,6 +52,7 @@ export const getQuestionsSampleCSV = () => {
       "useEffect",
       "useCallback",
       "C",
+      "useEffect runs after every render by default and lets developers perform side effects like network requests, timers, and manual DOM mutations.",
     ],
     [
       "In Node.js, what module is built-in for handling file system operations?",
@@ -52,6 +61,7 @@ export const getQuestionsSampleCSV = () => {
       "http",
       "crypto",
       "A",
+      "The 'fs' (file system) module provides both synchronous and asynchronous methods to read, write, and manipulate files on disk.",
     ],
     [
       "What type of database is MongoDB?",
@@ -60,6 +70,7 @@ export const getQuestionsSampleCSV = () => {
       "Graph",
       "Key-Value Store only",
       "B",
+      "MongoDB stores flexible JSON-like documents (BSON) rather than rigid rows and columns of traditional relational databases.",
     ],
     [
       "Which HTTP status code signifies a resource was successfully created?",
@@ -68,6 +79,7 @@ export const getQuestionsSampleCSV = () => {
       "204 No Content",
       "301 Moved",
       "B",
+      "HTTP 201 Created is the standard REST status code returned after a successful POST request that creates a new resource.",
     ],
   ];
 
@@ -91,11 +103,9 @@ export const splitCSVRow = (rowText) => {
 
     if (char === '"') {
       if (insideQuotes && nextChar === '"') {
-        // Escaped double quote
         current += '"';
         i++;
       } else {
-        // Toggle quote state
         insideQuotes = !insideQuotes;
       }
     } else if (char === "," && !insideQuotes) {
@@ -134,7 +144,7 @@ export const parseQuestionsCSV = (csvContent) => {
     if (cols.length < 6) {
       errors.push({
         line: lineNum,
-        message: `Row has only ${cols.length} column(s). Expected 6 columns: Question, Option A, Option B, Option C, Option D, Correct Option.`,
+        message: `Row has only ${cols.length} column(s). Expected at least 6 columns: Question, Option A, Option B, Option C, Option D, Correct Option.`,
       });
       continue;
     }
@@ -145,6 +155,7 @@ export const parseQuestionsCSV = (csvContent) => {
     const optionC = cols[3] ? cols[3].trim() : "";
     const optionD = cols[4] ? cols[4].trim() : "";
     const rawCorrect = cols[5] ? cols[5].trim().toUpperCase() : "";
+    const explanation = cols[6] ? cols[6].trim() : "";
 
     if (!questionText) {
       errors.push({ line: lineNum, message: "Question statement is empty." });
@@ -159,7 +170,6 @@ export const parseQuestionsCSV = (csvContent) => {
       continue;
     }
 
-    // Sanitize correctOption (handle "A", "Option A", "A.", etc.)
     const cleanCorrect = rawCorrect.charAt(0);
     if (!["A", "B", "C", "D"].includes(cleanCorrect)) {
       errors.push({
@@ -178,6 +188,7 @@ export const parseQuestionsCSV = (csvContent) => {
         D: optionD,
       },
       correctOption: cleanCorrect,
+      explanation,
     });
   }
 
@@ -187,4 +198,3 @@ export const parseQuestionsCSV = (csvContent) => {
     errors,
   };
 };
-

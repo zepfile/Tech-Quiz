@@ -42,15 +42,21 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
-    navigate(isAdmin ? "/admin/login" : "/login");
+    navigate("/login");
   };
 
   const userMenu = [
     {
       title: "Available Quizzes",
-      paths: ["/", "/user/write-exam"],
+      paths: ["/", "/home", "/user/write-exam"],
       icon: <i className="ri-compass-3-line"></i>,
       onClick: () => navigate("/"),
+    },
+    {
+      title: "Leaderboard & Ranks",
+      paths: ["/leaderboard"],
+      icon: <i className="ri-trophy-line"></i>,
+      onClick: () => navigate("/leaderboard"),
     },
     {
       title: "My History & Reports",
@@ -62,7 +68,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       title: "My Profile",
       paths: ["/profile"],
       icon: <i className="ri-user-3-line"></i>,
-      onClick: () => setShowProfileModal(true),
+      onClick: () => navigate("/profile"),
     },
     {
       title: "Sign Out",
@@ -92,10 +98,16 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       onClick: () => navigate("/admin/reports"),
     },
     {
+      title: "Leaderboard & Ranks",
+      paths: ["/leaderboard"],
+      icon: <i className="ri-trophy-line"></i>,
+      onClick: () => navigate("/leaderboard"),
+    },
+    {
       title: "Admin Profile",
       paths: ["/profile"],
       icon: <i className="ri-shield-user-line"></i>,
-      onClick: () => setShowProfileModal(true),
+      onClick: () => navigate("/profile"),
     },
     {
       title: "Candidate View Preview",
@@ -133,13 +145,13 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           setMenu(userMenu);
         }
       } else {
-        message.error(response.message);
+        localStorage.removeItem("token");
         navigate("/login");
       }
     } catch (error) {
-      navigate("/login");
+      localStorage.removeItem("token");
       dispatch(HideLoading());
-      message.error(error.message);
+      navigate("/login");
     }
   };
 
@@ -173,213 +185,258 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     return false;
   };
 
+  const isExamRunner = activeRoute.includes("/user/write-exam");
+
   return (
     <div className="layout">
       <div className="flex gap-2 w-full h-full">
-        {/* Hover-to-expand Sidebar */}
-        <div
-          className={`sidebar ${!isExpanded ? "collapsed" : ""} ${isHovered && !isPinned ? "hover-active" : ""}`}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{
-            width: isExpanded ? "240px" : "76px",
-            background: isAdmin
-              ? "linear-gradient(180deg, #130f26 0%, #0f172a 100%)"
-              : "#0f172a",
-          }}
-        >
-          {/* Brand header */}
+        {/* Hover-to-expand Sidebar (Hidden during Exam for Full-Page experience) */}
+        {!isExamRunner && (
           <div
-            className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60 cursor-pointer"
-            style={{ justifyContent: isExpanded ? "flex-start" : "center" }}
-            onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
-            title="TechQuiz Home"
+            className={`sidebar ${!isExpanded ? "collapsed" : ""} ${isHovered && !isPinned ? "hover-active" : ""}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+              width: isExpanded ? "240px" : "76px",
+              background: isAdmin
+                ? "linear-gradient(180deg, #130f26 0%, #0f172a 100%)"
+                : "#0f172a",
+            }}
           >
-            <BrandLogo size={36} />
-            {isExpanded && (
-              <div className="flex flex-col">
-                <span className="font-extrabold text-white text-base tracking-tight leading-tight">
-                  TechQuiz<span style={{ color: isAdmin ? "#c084fc" : "#38bdf8" }}>{isAdmin ? ".admin" : ".io"}</span>
-                </span>
-                <span
+            {/* Brand header */}
+            <div
+              className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60 cursor-pointer"
+              style={{ justifyContent: isExpanded ? "flex-start" : "center" }}
+              onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
+              title="TechQuiz Home"
+            >
+              <BrandLogo size={36} />
+              {isExpanded && (
+                <div className="flex flex-col">
+                  <span className="font-extrabold text-white text-base tracking-tight leading-tight">
+                    TechQuiz<span style={{ color: isAdmin ? "#c084fc" : "#38bdf8" }}>{isAdmin ? ".admin" : ".io"}</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: isAdmin ? "#c084fc" : "#38bdf8",
+                      letterSpacing: "0.06em",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {isAdmin ? "ADMIN CONSOLE" : "STUDENT PORTAL"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation Menu */}
+            <div className="menu">
+              {menu.map((item, index) => {
+                return (
+                  <div
+                    className={`menu-item ${
+                      getIsActiveOrNot(item.paths) && "active-menu-item"
+                    }`}
+                    key={index}
+                    onClick={item.onClick}
+                    title={!isExpanded ? item.title : ""}
+                  >
+                    {item.icon}
+                    {isExpanded && <span>{item.title}</span>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom Sidebar User Profile Card */}
+            {user && (
+              <div
+                className="sidebar-user-footer"
+                onClick={() => navigate("/profile")}
+                title="Click to view full profile & settings"
+                style={{
+                  marginTop: "auto",
+                  padding: isExpanded ? "12px" : "10px 0",
+                  borderRadius: "12px",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: isExpanded ? "flex-start" : "center",
+                  gap: "10px",
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                <div
                   style={{
-                    fontSize: "10px",
-                    color: isAdmin ? "#c084fc" : "#38bdf8",
-                    letterSpacing: "0.06em",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: isAdmin ? "#7e22ce" : "#0284c7",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     fontWeight: 700,
+                    fontSize: 14,
+                    flexShrink: 0,
                   }}
                 >
-                  {isAdmin ? "ADMIN CONSOLE" : "STUDENT PORTAL"}
-                </span>
+                  {user?.name ? user.name[0].toUpperCase() : "U"}
+                </div>
+                {isExpanded && (
+                  <div style={{ overflow: "hidden", flex: 1 }}>
+                    <div
+                      style={{
+                        color: "#f8fafc",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {user?.name}
+                    </div>
+                    <div
+                      style={{
+                        color: "#94a3b8",
+                        fontSize: "11px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: "#34d399",
+                          display: "inline-block",
+                        }}
+                      ></span>
+                      {isAdmin ? "Admin • Profile" : "Online • Profile"}
+                    </div>
+                  </div>
+                )}
+                {isExpanded && (
+                  <i
+                    className="ri-arrow-right-s-line"
+                    style={{ color: "#94a3b8", fontSize: 18 }}
+                  ></i>
+                )}
               </div>
             )}
           </div>
-
-          {/* Navigation Menu */}
-          <div className="menu">
-            {menu.map((item, index) => {
-              return (
-                <div
-                  className={`menu-item ${
-                    getIsActiveOrNot(item.paths) && "active-menu-item"
-                  }`}
-                  key={index}
-                  onClick={item.onClick}
-                  title={!isExpanded ? item.title : ""}
-                >
-                  {item.icon}
-                  {isExpanded && <span>{item.title}</span>}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Bottom Sidebar User Profile Card */}
-          {user && (
-            <div
-              className="sidebar-user-footer"
-              onClick={() => setShowProfileModal(true)}
-              title="Click to view full profile & settings"
-              style={{
-                marginTop: "auto",
-                padding: isExpanded ? "12px" : "10px 0",
-                borderRadius: "12px",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: isExpanded ? "flex-start" : "center",
-                gap: "10px",
-                transition: "all 0.2s ease-in-out",
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: isAdmin ? "#7e22ce" : "#0284c7",
-                  color: "#ffffff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  flexShrink: 0,
-                }}
-              >
-                {user?.name ? user.name[0].toUpperCase() : "U"}
-              </div>
-              {isExpanded && (
-                <div style={{ overflow: "hidden", flex: 1 }}>
-                  <div
-                    style={{
-                      color: "#f8fafc",
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {user?.name}
-                  </div>
-                  <div
-                    style={{
-                      color: "#94a3b8",
-                      fontSize: "11px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: "#34d399",
-                        display: "inline-block",
-                      }}
-                    ></span>
-                    {isAdmin ? "Admin • Profile" : "Online • Profile"}
-                  </div>
-                </div>
-              )}
-              {isExpanded && (
-                <i
-                  className="ri-arrow-right-s-line"
-                  style={{ color: "#94a3b8", fontSize: 18 }}
-                ></i>
-              )}
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Main Body */}
-        <div className="body">
+        <div className="body" style={{ width: "100%" }}>
           {/* Top Header */}
-          <div className="header">
-            <div className="flex items-center gap-3">
-              <i
-                className={isPinned ? "ri-menu-fold-line" : "ri-menu-unfold-line"}
-                onClick={togglePin}
-                title={
-                  isPinned
-                    ? "Sidebar is locked open. Click to enable auto-expand on hover."
-                    : "Auto-expand on hover is active! Click to pin sidebar open."
-                }
-                style={{
-                  backgroundColor: !isPinned ? "#e0e7ff" : "transparent",
-                  color: !isPinned ? "#4f46e5" : "#64748b",
-                }}
-              ></i>
-              <span className="text-lg font-bold text-slate-800">
-                {isAdmin
-                  ? "Administrator Control & Assessment Console"
-                  : "Candidate Skill Evaluation & Testing Portal"}
-              </span>
-            </div>
-
-            {/* Clickable Header Profile */}
-            <div
-              className="flex items-center gap-3 cursor-pointer user-header-profile"
-              onClick={() => setShowProfileModal(true)}
-              title="Click to view full profile & account details"
-              style={{
-                padding: "4px 10px",
-                borderRadius: "12px",
-              }}
-            >
-              <div className="text-right">
-                <div className="text-sm font-semibold text-slate-800">
-                  {user?.name || "User"}
+          {isExamRunner ? (
+            <div className="header" style={{ marginBottom: 14 }}>
+              <div className="flex items-center gap-3">
+                <BrandLogo size={32} />
+                <div>
+                  <span className="font-extrabold text-slate-800 text-base">
+                    TechQuiz • Assessment Runner
+                  </span>
+                  <span
+                    className="badge badge-primary ml-2"
+                    style={{ fontSize: 10, background: "#e0e7ff", color: "#4338ca" }}
+                  >
+                    FULL PAGE PROCTORED
+                  </span>
                 </div>
-                <span
-                  className={`badge ${
-                    isAdmin ? "badge-primary" : "badge-success"
-                  }`}
-                  style={{
-                    backgroundColor: isAdmin ? "#f3e8ff" : "#dcfce7",
-                    color: isAdmin ? "#7e22ce" : "#15803d",
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-slate-700">
+                  Candidate: <strong>{user?.name}</strong>
+                </span>
+                <button
+                  type="button"
+                  className="primary-outlined-btn"
+                  style={{ height: 32, padding: "0 12px", fontSize: 12, borderRadius: 8 }}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to exit the examination? Any unsaved responses will be discarded."
+                      )
+                    ) {
+                      navigate("/");
+                    }
                   }}
                 >
-                  {isAdmin ? "Administrator" : "Candidate"}
-                </span>
-              </div>
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-sm"
-                style={{
-                  backgroundColor: isAdmin ? "#f3e8ff" : "#e0e7ff",
-                  color: isAdmin ? "#7e22ce" : "#4338ca",
-                  borderColor: isAdmin ? "#d8b4fe" : "#c7d2fe",
-                }}
-              >
-                {user?.name ? user.name[0].toUpperCase() : "U"}
+                  <i className="ri-close-line"></i> Exit Exam
+                </button>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="header">
+              <div className="flex items-center gap-3">
+                <i
+                  className={isPinned ? "ri-menu-fold-line" : "ri-menu-unfold-line"}
+                  onClick={togglePin}
+                  title={
+                    isPinned
+                      ? "Sidebar is locked open. Click to enable auto-expand on hover."
+                      : "Auto-expand on hover is active! Click to pin sidebar open."
+                  }
+                  style={{
+                    backgroundColor: !isPinned ? "#e0e7ff" : "transparent",
+                    color: !isPinned ? "#4f46e5" : "#64748b",
+                  }}
+                ></i>
+                <span className="text-lg font-bold text-slate-800">
+                  {isAdmin
+                    ? "Administrator Control & Assessment Console"
+                    : "Candidate Skill Evaluation & Testing Portal"}
+                </span>
+              </div>
+
+              {/* Clickable Header Profile */}
+              <div
+                className="flex items-center gap-3 cursor-pointer user-header-profile"
+                onClick={() => navigate("/profile")}
+                title="Click to view full profile & account details"
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "12px",
+                }}
+              >
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-slate-800">
+                    {user?.name || "User"}
+                  </div>
+                  <span
+                    className={`badge ${
+                      isAdmin ? "badge-primary" : "badge-success"
+                    }`}
+                    style={{
+                      backgroundColor: isAdmin ? "#f3e8ff" : "#dcfce7",
+                      color: isAdmin ? "#7e22ce" : "#15803d",
+                    }}
+                  >
+                    {isAdmin ? "Administrator" : "Candidate"}
+                  </span>
+                </div>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-sm"
+                  style={{
+                    backgroundColor: isAdmin ? "#f3e8ff" : "#e0e7ff",
+                    color: isAdmin ? "#7e22ce" : "#4338ca",
+                    borderColor: isAdmin ? "#d8b4fe" : "#c7d2fe",
+                  }}
+                >
+                  {user?.name ? user.name[0].toUpperCase() : "U"}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Main Page Content */}
           <div className="content">{children}</div>

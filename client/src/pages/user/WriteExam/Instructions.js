@@ -13,8 +13,17 @@ function Instructions({ examData, setView, startTimer }) {
     return `${secs} seconds`;
   };
 
+  const handleStartExam = () => {
+    // Attempt fullscreen mode
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    startTimer();
+    setView("questions");
+  };
+
   return (
-    <div style={{ maxWidth: "680px", margin: "0 auto", padding: "10px 0" }}>
+    <div style={{ width: "100%", maxWidth: "980px", margin: "0 auto", padding: "10px 0" }}>
       <div
         className="card-lg"
         style={{
@@ -38,8 +47,18 @@ function Instructions({ examData, setView, startTimer }) {
             <span className="badge badge-primary">
               {examData.category || "General Tech"}
             </span>
-            <span className="badge" style={{ backgroundColor: "#f1f5f9", color: "#475569" }}>
-              Standard Assessment
+            <span
+              className="badge"
+              style={{
+                backgroundColor: "#fef3c7",
+                color: "#92400e",
+                border: "1px solid #fde68a",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <i className="ri-shield-check-line"></i> Anti-Cheating Protected
             </span>
           </div>
         </div>
@@ -48,36 +67,64 @@ function Instructions({ examData, setView, startTimer }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "12px",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "10px",
             marginBottom: "28px",
             textAlign: "center",
           }}
         >
-          <div style={{ padding: "16px 12px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
+          <div style={{ padding: "14px 10px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
             <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "700", display: "block" }}>
               Duration
             </span>
-            <strong style={{ fontSize: "17px", color: "#0f172a", marginTop: "4px", display: "block" }}>
+            <strong style={{ fontSize: "16px", color: "#0f172a", marginTop: "4px", display: "block" }}>
               {formatDuration(examData.duration)}
             </strong>
           </div>
-          <div style={{ padding: "16px 12px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
+          <div style={{ padding: "14px 10px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
             <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "700", display: "block" }}>
               Total Marks
             </span>
-            <strong style={{ fontSize: "17px", color: "#4f46e5", marginTop: "4px", display: "block" }}>
+            <strong style={{ fontSize: "16px", color: "#4f46e5", marginTop: "4px", display: "block" }}>
               {examData.totalMarks} pts
             </strong>
           </div>
-          <div style={{ padding: "16px 12px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
+          <div style={{ padding: "14px 10px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
             <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "700", display: "block" }}>
               Passing Score
             </span>
-            <strong style={{ fontSize: "17px", color: "#16a34a", marginTop: "4px", display: "block" }}>
-              {examData.passingMarks} pts ({Math.round((examData.passingMarks / examData.totalMarks) * 100)}%)
+            <strong style={{ fontSize: "16px", color: "#16a34a", marginTop: "4px", display: "block" }}>
+              {examData.passingMarks} pts
             </strong>
           </div>
+          <div style={{ padding: "14px 10px", borderRadius: "14px", backgroundColor: examData.negativeMarks > 0 ? "#fef2f2" : "#f8fafc", border: `1px solid ${examData.negativeMarks > 0 ? "#fecaca" : "#e2e8f0"}` }}>
+            <span style={{ fontSize: "11px", color: examData.negativeMarks > 0 ? "#dc2626" : "#64748b", textTransform: "uppercase", fontWeight: "700", display: "block" }}>
+              Negative Mark
+            </span>
+            <strong style={{ fontSize: "16px", color: examData.negativeMarks > 0 ? "#b91c1c" : "#16a34a", marginTop: "4px", display: "block" }}>
+              {examData.negativeMarks > 0 ? `-${examData.negativeMarks} pts` : "None"}
+            </strong>
+          </div>
+        </div>
+
+        {/* Anti-Cheating & Proctoring Protocol Banner */}
+        <div
+          style={{
+            marginBottom: "20px",
+            background: "linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%)",
+            border: "1px solid #fecaca",
+            borderRadius: "16px",
+            padding: "16px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#b91c1c", fontWeight: 700, fontSize: 13, marginBottom: 8 }}>
+            <i className="ri-shield-keyhole-line" style={{ fontSize: 18 }}></i>
+            Proctoring & Anti-Cheating Protocol Active:
+          </div>
+          <p style={{ margin: 0, fontSize: 12, color: "#991b1b", lineHeight: 1.6 }}>
+            • <strong>Tab-Switch Tracking:</strong> Switching tabs or minimizing the browser window will trigger a penalty warning. <strong>Exceeding 3 warnings will terminate and auto-submit the exam.</strong><br />
+            • <strong>Integrity Safeguards:</strong> Copying, pasting, right-clicking, text selection, and developer inspector keys are disabled during the test.
+          </p>
         </div>
 
         {/* Guidelines List */}
@@ -97,8 +144,14 @@ function Instructions({ examData, setView, startTimer }) {
             </li>
             <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#dcfce7", color: "#16a34a", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: "bold" }}>✓</span>
-              <span>Each correct answer awards <strong>1 mark</strong>. There is no negative marking.</span>
+              <span>Each correct answer awards <strong>1 mark</strong>.</span>
             </li>
+            {examData.negativeMarks > 0 && (
+              <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: "bold" }}>!</span>
+                <span style={{ color: "#b91c1c" }}><strong>Negative Marking Active:</strong> Each incorrect answer will deduct <strong>-{examData.negativeMarks} marks</strong>.</span>
+              </li>
+            )}
             <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#dcfce7", color: "#16a34a", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: "bold" }}>✓</span>
               <span>If time runs out, your selected answers are automatically submitted.</span>
@@ -119,10 +172,7 @@ function Instructions({ examData, setView, startTimer }) {
           <button
             type="button"
             className="primary-contained-btn"
-            onClick={() => {
-              startTimer();
-              setView("exam");
-            }}
+            onClick={handleStartExam}
             style={{ padding: "0 28px" }}
           >
             <span>Begin Assessment</span>

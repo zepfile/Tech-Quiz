@@ -1,5 +1,5 @@
-import { message } from "antd";
-import React, { useEffect, useState } from "react";
+import { message, Modal } from "antd";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getExamById } from "../../../apicalls/exams";
@@ -8,6 +8,7 @@ import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import Instructions from "./Instructions";
 import { CategoryBadgeIcon, TimerClockSvg } from "../../../components/TechIcons";
 import { ExamPassedIllustration, ExamFailedIllustration } from "../../../components/SvgIllustrations";
+import CertificateModal from "../../../components/CertificateModal";
 
 function WriteExam() {
   const [examData, setExamData] = useState(null);
@@ -15,6 +16,7 @@ function WriteExam() {
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [result, setResult] = useState({});
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,6 +25,13 @@ function WriteExam() {
   const [timeUp, setTimeUp] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const { user } = useSelector((state) => state.users);
+
+  // Anti-Cheating & Proctoring States
+  const [tabSwitchWarnings, setTabSwitchWarnings] = useState(0);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [terminatedDueToCheating, setTerminatedDueToCheating] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
+  const lastViolationTime = useRef(0);
 
   const getExamData = async () => {
     try {
@@ -44,7 +53,7 @@ function WriteExam() {
     }
   };
 
-  const calculateResult = async () => {
+  const calculateResult = async (isTerminated = false) => {
     try {
       let correctAnswers = [];
       let wrongAnswers = [];
@@ -57,15 +66,24 @@ function WriteExam() {
         }
       });
 
+      const negPerWrong = Number(examData.negativeMarks) || 0;
+      const penaltyDeducted = Math.round(wrongAnswers.length * negPerWrong * 100) / 100;
+      const rawScore = correctAnswers.length - penaltyDeducted;
+      const finalScore = Math.max(0, Math.round(rawScore * 100) / 100);
+
       let verdict = "Pass";
-      if (correctAnswers.length < examData.passingMarks) {
+      if (isTerminated || finalScore < examData.passingMarks) {
         verdict = "Fail";
       }
 
       const tempResult = {
         correctAnswers,
         wrongAnswers,
+        obtainedScore: finalScore,
+        penaltyDeducted,
+        negativePerWrong: negPerWrong,
         verdict,
+        terminatedDueToCheating: isTerminated,
       };
       setResult(tempResult);
       dispatch(ShowLoading());
@@ -99,6 +117,98 @@ function WriteExam() {
     setIntervalId(id);
   };
 
+  // Anti-Cheating: Handle Violation (Debounced within 2 seconds)
+  const handleViolation = (reason) => {
+    if (view !== "questions") return;
+    const now = Date.now();
+    if (now - lastViolationTime.current < 2500) return;
+    lastViolationTime.current = now;
+
+    setTabSwitchWarnings((prev) => {
+      const next = prev + 1;
+      if (next >= 3) {
+        setTerminatedDueToCheating(true);
+        setShowWarningModal(false);
+        if (intervalId) clearInterval(intervalId);
+        message.error("EXAMINATION TERMINATED: Maximum tab-switch violations reached!");
+        calculateResult(true);
+      } else {
+        setShowWarningModal(true);
+      }
+      return next;
+    });
+  };
+
+  // Anti-Cheating: Tab switch / Window blur / Fullscreen listeners
+  useEffect(() => {
+    if (view !== "questions") return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleViolation("Tab switched or minimized");
+      }
+    };
+
+    const handleWindowBlur = () => {
+      handleViolation("Window lost focus");
+    };
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [view, intervalId]);
+
+  // Anti-Cheating: Block Copy / Paste / Context Menu / Devtools shortcut keys
+  useEffect(() => {
+    if (view !== "questions") return;
+
+    const handleContextMenu = (e) => e.preventDefault();
+    const handleCopy = (e) => e.preventDefault();
+    const handleCut = (e) => e.preventDefault();
+    const handlePaste = (e) => e.preventDefault();
+
+    const handleKeyDown = (e) => {
+      // Prevent Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+Shift+I, F12
+      if (
+        (e.ctrlKey && ["c", "v", "u", "a"].includes(e.key.toLowerCase())) ||
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("copy", handleCopy);
+    document.addEventListener("cut", handleCut);
+    document.addEventListener("paste", handlePaste);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("copy", handleCopy);
+      document.removeEventListener("cut", handleCut);
+      document.removeEventListener("paste", handlePaste);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [view]);
+
+  const requestFullscreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  };
+
   useEffect(() => {
     if (timeUp && view === "questions") {
       clearInterval(intervalId);
@@ -125,7 +235,7 @@ function WriteExam() {
 
   return (
     examData && (
-      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+      <div style={{ width: "100%", margin: "0 auto" }}>
         {view === "instructions" && (
           <Instructions
             examData={examData}
@@ -136,7 +246,108 @@ function WriteExam() {
 
         {/* QUESTIONS VIEW */}
         {view === "questions" && currentQuestion && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+              userSelect: "none",
+            }}
+          >
+            {/* Anti-Cheating & Proctoring Status Ribbon */}
+            <div
+              style={{
+                backgroundColor: tabSwitchWarnings === 0 ? "#f8fafc" : tabSwitchWarnings === 1 ? "#fefce8" : "#fef2f2",
+                border: `1px solid ${tabSwitchWarnings === 0 ? "#e2e8f0" : tabSwitchWarnings === 1 ? "#fde047" : "#fca5a5"}`,
+                borderRadius: "14px",
+                padding: "10px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 10,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
+                <span
+                  style={{
+                    backgroundColor: "#10b981",
+                    color: "#ffffff",
+                    borderRadius: "50%",
+                    width: 22,
+                    height: 22,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                  }}
+                >
+                  <i className="ri-shield-check-fill"></i>
+                </span>
+                <span style={{ fontWeight: 700, color: "#1e293b" }}>
+                  Live Anti-Cheating Protected
+                </span>
+                <span style={{ color: "#94a3b8" }}>•</span>
+                <span style={{ color: "#64748b", fontSize: 12 }}>
+                  Copy/Paste Disabled
+                </span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {!isFullscreen && (
+                  <button
+                    type="button"
+                    onClick={requestFullscreen}
+                    style={{
+                      background: "#f1f5f9",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <i className="ri-fullscreen-line"></i> Enter Fullscreen
+                  </button>
+                )}
+
+                <span
+                  style={{
+                    backgroundColor:
+                      tabSwitchWarnings === 0
+                        ? "#dcfce7"
+                        : tabSwitchWarnings === 1
+                        ? "#fef08a"
+                        : "#fee2e2",
+                    color:
+                      tabSwitchWarnings === 0
+                        ? "#15803d"
+                        : tabSwitchWarnings === 1
+                        ? "#854d0e"
+                        : "#b91c1c",
+                    fontWeight: 800,
+                    fontSize: 12,
+                    padding: "4px 12px",
+                    borderRadius: 20,
+                    border: `1px solid ${
+                      tabSwitchWarnings === 0
+                        ? "#bbf7d0"
+                        : tabSwitchWarnings === 1
+                        ? "#fde047"
+                        : "#fca5a5"
+                    }`,
+                  }}
+                >
+                  <i className="ri-alert-line" style={{ marginRight: 4 }}></i>
+                  Tab Violations: {tabSwitchWarnings}/3
+                </span>
+              </div>
+            </div>
+
             {/* Top Bar: Exam Title & Timer */}
             <div
               style={{
@@ -145,8 +356,9 @@ function WriteExam() {
                 alignItems: "center",
                 padding: "16px 20px",
                 borderRadius: "16px",
-                backgroundColor: "#f8fafc",
+                backgroundColor: "#ffffff",
                 border: "1px solid #e2e8f0",
+                boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -342,9 +554,74 @@ function WriteExam() {
           </div>
         )}
 
+        {/* Anti-Cheating Violation Warning Modal */}
+        <Modal
+          visible={showWarningModal}
+          footer={null}
+          closable={false}
+          centered
+          width={480}
+          bodyStyle={{ padding: "32px 24px", textAlign: "center", borderRadius: 20 }}
+        >
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              backgroundColor: "#fef2f2",
+              color: "#dc2626",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 34,
+              margin: "0 auto 16px auto",
+              boxShadow: "0 4px 12px rgba(239, 68, 68, 0.2)",
+            }}
+          >
+            <i className="ri-error-warning-line"></i>
+          </div>
+
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1e293b", margin: "0 0 8px 0" }}>
+            Tab-Switching Detected!
+          </h3>
+
+          <div
+            style={{
+              display: "inline-block",
+              backgroundColor: "#fee2e2",
+              color: "#991b1b",
+              fontWeight: 800,
+              fontSize: 13,
+              padding: "4px 14px",
+              borderRadius: 20,
+              marginBottom: 16,
+            }}
+          >
+            Warning {tabSwitchWarnings} of 3
+          </div>
+
+          <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: "0 0 24px 0" }}>
+            You switched tabs or minimized the browser window. This is strictly prohibited.
+            <br />
+            <strong>You have {3 - tabSwitchWarnings} warning(s) remaining.</strong> If you switch tabs again, your examination will be automatically terminated and submitted immediately.
+          </p>
+
+          <button
+            type="button"
+            className="primary-contained-btn"
+            style={{ width: "100%", height: 44, borderRadius: 12 }}
+            onClick={() => {
+              setShowWarningModal(false);
+              requestFullscreen();
+            }}
+          >
+            I Understand & Resume Assessment
+          </button>
+        </Modal>
+
         {/* RESULT VIEW */}
         {view === "result" && (
-          <div style={{ maxWidth: "640px", margin: "20px auto" }}>
+          <div style={{ width: "100%", maxWidth: "850px", margin: "20px auto" }}>
             <div
               className="card-lg"
               style={{
@@ -362,14 +639,36 @@ function WriteExam() {
                 )}
               </div>
 
-              <span
-                className={`badge ${
-                  result.verdict === "Pass" ? "badge-success" : "badge-danger"
-                }`}
-                style={{ fontSize: "13px", padding: "6px 16px" }}
-              >
-                {result.verdict === "Pass" ? "PASSED EXAMINATION" : "NEEDS RETAKE"}
-              </span>
+              {terminatedDueToCheating && (
+                <div
+                  style={{
+                    backgroundColor: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    color: "#991b1b",
+                    padding: "8px 16px",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    marginBottom: 14,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <i className="ri-alarm-warning-line"></i> Terminated due to repeated tab switching violations (3/3)
+                </div>
+              )}
+
+              <div>
+                <span
+                  className={`badge ${
+                    result.verdict === "Pass" ? "badge-success" : "badge-danger"
+                  }`}
+                  style={{ fontSize: "13px", padding: "6px 16px" }}
+                >
+                  {result.verdict === "Pass" ? "PASSED EXAMINATION" : "NEEDS RETAKE"}
+                </span>
+              </div>
 
               <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", marginTop: "12px", marginBottom: "4px" }}>
                 {examData.name}
@@ -377,6 +676,8 @@ function WriteExam() {
               <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
                 {result.verdict === "Pass"
                   ? "Congratulations! You successfully cleared the passing threshold."
+                  : terminatedDueToCheating
+                  ? "Your attempt was disqualified because tab switching limits were exceeded."
                   : "You did not reach the passing criteria. Review your answers and try again."}
               </p>
 
@@ -392,12 +693,17 @@ function WriteExam() {
               >
                 <div style={{ padding: "16px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #f1f5f9" }}>
                   <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "600" }}>
-                    Obtained
+                    Final Score
                   </span>
                   <div style={{ fontSize: "22px", fontWeight: "800", color: "#4f46e5", marginTop: "4px" }}>
-                    {result.correctAnswers?.length || 0}
+                    {result.obtainedScore !== undefined ? result.obtainedScore : result.correctAnswers?.length || 0}
                     <span style={{ fontSize: "14px", fontWeight: "500", color: "#94a3b8" }}> / {examData.totalMarks}</span>
                   </div>
+                  {result.penaltyDeducted > 0 && (
+                    <div style={{ fontSize: "11px", color: "#dc2626", fontWeight: "700", marginTop: "2px" }}>
+                      (-{result.penaltyDeducted} penalty)
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ padding: "16px", borderRadius: "14px", backgroundColor: "#f8fafc", border: "1px solid #f1f5f9" }}>
@@ -420,7 +726,21 @@ function WriteExam() {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+                {result.verdict === "Pass" && (
+                  <button
+                    type="button"
+                    className="primary-contained-btn"
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                      color: "#ffffff",
+                      boxShadow: "0 4px 12px rgba(217, 119, 6, 0.35)",
+                    }}
+                    onClick={() => setShowCertificateModal(true)}
+                  >
+                    <i className="ri-award-fill"></i> View & Print Certificate
+                  </button>
+                )}
                 <button
                   type="button"
                   className="primary-outlined-btn"
@@ -429,6 +749,8 @@ function WriteExam() {
                     setSelectedQuestionIndex(0);
                     setSelectedOptions({});
                     setSecondsLeft(examData.duration);
+                    setTabSwitchWarnings(0);
+                    setTerminatedDueToCheating(false);
                   }}
                 >
                   <i className="ri-restart-line"></i> Retake Exam
@@ -505,6 +827,29 @@ function WriteExam() {
                       {question.correctOption} - {question.options[question.correctOption]}
                     </div>
                   </div>
+
+                  {question.explanation && (
+                    <div
+                      style={{
+                        marginTop: 10,
+                        backgroundColor: "#fefce8",
+                        border: "1px solid #fef08a",
+                        borderRadius: 10,
+                        padding: "10px 14px",
+                        fontSize: "13px",
+                        color: "#713f12",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                      }}
+                    >
+                      <i className="ri-lightbulb-fill" style={{ color: "#eab308", fontSize: 16, marginTop: 1, flexShrink: 0 }}></i>
+                      <div>
+                        <strong>Concept & Solution Breakdown: </strong>
+                        <span>{question.explanation}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -519,6 +864,20 @@ function WriteExam() {
               </button>
             </div>
           </div>
+        )}
+
+        {showCertificateModal && (
+          <CertificateModal
+            visible={showCertificateModal}
+            onCancel={() => setShowCertificateModal(false)}
+            report={{
+              user,
+              exam: examData,
+              result,
+              createdAt: new Date(),
+              _id: "cert_" + Date.now(),
+            }}
+          />
         )}
       </div>
     )

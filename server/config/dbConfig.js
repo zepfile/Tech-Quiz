@@ -14,16 +14,39 @@ const seedMongoDbIfEmpty = async () => {
     const Exam = require("../models/examModel");
     const Question = require("../models/questionModel");
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    // Sync admin account from .env to database if configured
+    if (adminEmail && adminPassword) {
+      const existingAdmin = await User.findOne({ email: adminEmail });
+      if (!existingAdmin) {
+        const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
+        await User.create({
+          name: "Administrator",
+          email: adminEmail,
+          password: hashedAdminPassword,
+          isAdmin: true,
+        });
+        console.log(`[MongoDB Atlas] Admin account synced from .env (${adminEmail})`);
+      } else if (!existingAdmin.isAdmin) {
+        existingAdmin.isAdmin = true;
+        await existingAdmin.save();
+      }
+    }
+
     const usersCount = await User.countDocuments();
     if (usersCount === 0) {
       console.log("[MongoDB Atlas] Initializing default collections and seeding users...");
-      const adminHash = await bcrypt.hash("admin123", 10);
+      const finalAdminEmail = adminEmail || "admin@example.com";
+      const finalAdminPass = adminPassword || "admin_initial_secret";
+      const adminHash = await bcrypt.hash(finalAdminPass, 10);
       const userHash = await bcrypt.hash("user123", 10);
 
       await User.create([
         {
           name: "Admin User",
-          email: "admin@quiz.com",
+          email: finalAdminEmail,
           password: adminHash,
           isAdmin: true,
         },
@@ -34,7 +57,7 @@ const seedMongoDbIfEmpty = async () => {
           isAdmin: false,
         },
       ]);
-      console.log("[MongoDB Atlas] Users seeded successfully (admin@quiz.com & user@quiz.com)");
+      console.log(`[MongoDB Atlas] Users seeded successfully (${finalAdminEmail} & user@quiz.com)`);
     }
 
     const examsCount = await Exam.countDocuments();

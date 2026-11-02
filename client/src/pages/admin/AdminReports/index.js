@@ -7,10 +7,12 @@ import { getAllReports } from "../../../apicalls/reports";
 import { CategoryBadgeIcon, TrophyIcon, TargetIcon } from "../../../components/TechIcons";
 import { EmptyDataIllustration } from "../../../components/SvgIllustrations";
 import { downloadCSV, escapeCSV } from "../../../utils/csvHelper";
+import CertificateModal from "../../../components/CertificateModal";
 import moment from "moment";
 
 function AdminReports() {
   const [reportsData, setReportsData] = useState([]);
+  const [selectedReportForCert, setSelectedReportForCert] = useState(null);
   const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     examName: "",
@@ -65,16 +67,19 @@ function AdminReports() {
     ];
 
     const rows = reportsData.map((r) => {
-      const correct = r.result?.correctAnswers?.length || 0;
+      const score =
+        r.result?.obtainedScore !== undefined
+          ? r.result.obtainedScore
+          : r.result?.correctAnswers?.length || 0;
       const total = r.exam?.totalMarks || 1;
-      const pct = Math.round((correct / total) * 100);
+      const pct = Math.round((score / total) * 100);
       return [
         r.user?.name || "N/A",
         r.user?.email || "N/A",
         r.exam?.name || "N/A",
         r.exam?.category || "General",
         moment(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
-        correct,
+        score,
         total,
         `${pct}%`,
         r.exam?.passingMarks || 0,
@@ -159,15 +164,27 @@ function AdminReports() {
       title: "Score & Marks",
       dataIndex: "obtainedMarks",
       render: (text, record) => {
-        const correct = record.result?.correctAnswers?.length || 0;
+        const score =
+          record.result?.obtainedScore !== undefined
+            ? record.result.obtainedScore
+            : record.result?.correctAnswers?.length || 0;
         const total = record.exam?.totalMarks || 1;
-        const percentage = Math.round((correct / total) * 100);
+        const percentage = Math.round((score / total) * 100);
+        const penalty = record.result?.penaltyDeducted;
         return (
           <div>
             <span className="font-bold text-gray-900">
-              {correct} / {total}
+              {score} / {total}
             </span>
             <span className="text-xs text-muted ml-2">({percentage}%)</span>
+            {penalty > 0 && (
+              <div
+                className="text-xs"
+                style={{ color: "#dc2626", fontWeight: 600, marginTop: 2 }}
+              >
+                -{penalty} neg. mark
+              </div>
+            )}
           </div>
         );
       },
@@ -190,6 +207,34 @@ function AdminReports() {
           <span className={`badge ${isPass ? "badge-success" : "badge-danger"}`}>
             {isPass ? "Passed" : "Failed"}
           </span>
+        );
+      },
+    },
+    {
+      title: "Certificate",
+      dataIndex: "certificate",
+      render: (text, record) => {
+        const isPass = record.result?.verdict?.toLowerCase() === "pass";
+        if (!isPass) {
+          return <span className="text-xs text-muted">N/A</span>;
+        }
+        return (
+          <button
+            type="button"
+            className="primary-outlined-btn"
+            style={{
+              height: 32,
+              padding: "0 10px",
+              fontSize: 12,
+              borderRadius: 8,
+              borderColor: "#f59e0b",
+              color: "#b45309",
+              background: "#fffbeb",
+            }}
+            onClick={() => setSelectedReportForCert(record)}
+          >
+            <i className="ri-award-fill"></i> View Certificate
+          </button>
         );
       },
     },
@@ -398,6 +443,14 @@ function AdminReports() {
           dataSource={reportsData}
           rowKey={(record) => record._id || record.createdAt}
           pagination={{ pageSize: 8 }}
+        />
+      )}
+
+      {selectedReportForCert && (
+        <CertificateModal
+          visible={Boolean(selectedReportForCert)}
+          onCancel={() => setSelectedReportForCert(null)}
+          report={selectedReportForCert}
         />
       )}
     </div>

@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 
-const defaultAdminPasswordHash = bcrypt.hashSync("admin123", 10);
+const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+const adminPassword = process.env.ADMIN_PASSWORD || "admin_initial_secret";
+
+const defaultAdminPasswordHash = bcrypt.hashSync(adminPassword, 10);
 const defaultUserPasswordHash = bcrypt.hashSync("user123", 10);
 
 const memoryStore = {
@@ -8,7 +11,7 @@ const memoryStore = {
     {
       _id: "user_admin_001",
       name: "Admin User",
-      email: "admin@quiz.com",
+      email: adminEmail,
       password: defaultAdminPasswordHash,
       isAdmin: true,
       createdAt: new Date(),

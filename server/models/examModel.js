@@ -22,6 +22,10 @@ const examSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    negativeMarks: {
+      type: Number,
+      default: 0,
+    },
     questions: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "questions",

@@ -331,6 +331,7 @@ router.post("/bulk-add-questions-to-exam", authMiddleware, async (req, res) => {
           C: q.options?.C || "",
           D: q.options?.D || "",
         },
+        explanation: q.explanation || "",
         exam: examId,
       }));
 

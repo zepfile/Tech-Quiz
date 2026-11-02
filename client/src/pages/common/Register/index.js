@@ -1,4 +1,4 @@
-import { Form, message, Checkbox, Row, Col } from "antd";
+import { Form, message, Row, Col } from "antd";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -112,12 +112,12 @@ function Register() {
               justifyContent: "center",
             }}
           >
-            <div style={{ marginBottom: "20px" }}>
-              <h1 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", margin: 0 }}>
+            <div style={{ marginBottom: "24px" }}>
+              <h1 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", margin: 0 }}>
                 Create Account
               </h1>
               <p style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>
-                Sign up as a candidate or assessment admin
+                Sign up to begin your technical evaluations and track skill progress
               </p>
             </div>
 
@@ -146,16 +146,8 @@ function Register() {
                 <input type="password" placeholder="Create a secure password" />
               </Form.Item>
 
-              <Form.Item name="isAdmin" valuePropName="checked" style={{ marginBottom: "20px" }}>
-                <Checkbox>
-                  <span style={{ fontSize: "13px", color: "#334155" }}>
-                    Register as <b>Administrator</b> (Allows creating & editing quizzes)
-                  </span>
-                </Checkbox>
-              </Form.Item>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <button type="submit" className="primary-contained-btn" style={{ width: "100%" }}>
+              <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <button type="submit" className="primary-contained-btn" style={{ width: "100%", height: "44px" }}>
                   Register Account
                 </button>
 

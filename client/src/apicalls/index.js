@@ -11,4 +11,15 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// Auto-purge stale or expired tokens on 401 unauthorized
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const authMiddleware = require("../middlewares/authMiddleware");
 const memoryStore = require("../config/memoryStore");
 
-const JWT_SECRET = process.env.JWT_SECRET || "quiz_default_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET || "quiz_secret_jwt_key_2026";
 
 // user registration
 router.post("/register", async (req, res) => {
@@ -23,9 +23,13 @@ router.post("/register", async (req, res) => {
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
-      req.body.password = hashedPassword;
 
-      const newUser = new User(req.body);
+      const newUser = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
+        isAdmin: false, // All public registrations are regular candidate accounts
+      });
       await newUser.save();
       return res.send({
         message: "User created successfully",
@@ -49,7 +53,7 @@ router.post("/register", async (req, res) => {
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
-      isAdmin: req.body.isAdmin || false,
+      isAdmin: false, // All registrations are candidate users
       createdAt: new Date(),
     };
 
