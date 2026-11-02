@@ -206,28 +206,50 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           >
             {/* Brand header */}
             <div
-              className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60 cursor-pointer"
-              style={{ justifyContent: isExpanded ? "flex-start" : "center" }}
-              onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
-              title="TechQuiz Home"
+              className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60"
+              style={{ justifyContent: isExpanded ? "space-between" : "center" }}
             >
-              <BrandLogo size={36} />
+              <div
+                className="flex items-center gap-3 cursor-pointer"
+                onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
+                title="TechQuiz Home"
+              >
+                <BrandLogo size={36} />
+                {isExpanded && (
+                  <div className="flex flex-col">
+                    <span className="font-extrabold text-white text-base tracking-tight leading-tight">
+                      TechQuiz<span style={{ color: isAdmin ? "#c084fc" : "#38bdf8" }}>{isAdmin ? ".admin" : ".io"}</span>
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: isAdmin ? "#c084fc" : "#38bdf8",
+                        letterSpacing: "0.06em",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {isAdmin ? "ADMIN CONSOLE" : "STUDENT PORTAL"}
+                    </span>
+                  </div>
+                )}
+              </div>
               {isExpanded && (
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-white text-base tracking-tight leading-tight">
-                    TechQuiz<span style={{ color: isAdmin ? "#c084fc" : "#38bdf8" }}>{isAdmin ? ".admin" : ".io"}</span>
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "10px",
-                      color: isAdmin ? "#c084fc" : "#38bdf8",
-                      letterSpacing: "0.06em",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {isAdmin ? "ADMIN CONSOLE" : "STUDENT PORTAL"}
-                  </span>
-                </div>
+                <i
+                  className={isPinned ? "ri-menu-fold-line" : "ri-menu-unfold-line"}
+                  onClick={togglePin}
+                  title={
+                    isPinned
+                      ? "Sidebar is locked open. Click to enable auto-expand on hover."
+                      : "Auto-expand on hover is active! Click to pin sidebar open."
+                  }
+                  style={{
+                    color: isPinned ? "#818cf8" : "#64748b",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                    padding: "4px",
+                    borderRadius: "6px",
+                  }}
+                ></i>
               )}
             </div>
 
@@ -336,8 +358,8 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
         {/* Main Body */}
         <div className="body" style={{ width: "100%" }}>
-          {/* Top Header */}
-          {isExamRunner ? (
+          {/* Top Header - only shown during proctored exams */}
+          {isExamRunner && (
             <div className="header" style={{ marginBottom: 14 }}>
               <div className="flex items-center gap-3">
                 <BrandLogo size={32} />
@@ -374,67 +396,6 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                 >
                   <i className="ri-close-line"></i> Exit Exam
                 </button>
-              </div>
-            </div>
-          ) : (
-            <div className="header">
-              <div className="flex items-center gap-3">
-                <i
-                  className={isPinned ? "ri-menu-fold-line" : "ri-menu-unfold-line"}
-                  onClick={togglePin}
-                  title={
-                    isPinned
-                      ? "Sidebar is locked open. Click to enable auto-expand on hover."
-                      : "Auto-expand on hover is active! Click to pin sidebar open."
-                  }
-                  style={{
-                    backgroundColor: !isPinned ? "#e0e7ff" : "transparent",
-                    color: !isPinned ? "#4f46e5" : "#64748b",
-                  }}
-                ></i>
-                <span className="text-lg font-bold text-slate-800">
-                  {isAdmin
-                    ? "Administrator Control & Assessment Console"
-                    : "Candidate Skill Evaluation & Testing Portal"}
-                </span>
-              </div>
-
-              {/* Clickable Header Profile */}
-              <div
-                className="flex items-center gap-3 cursor-pointer user-header-profile"
-                onClick={() => navigate("/profile")}
-                title="Click to view full profile & account details"
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: "12px",
-                }}
-              >
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-slate-800">
-                    {user?.name || "User"}
-                  </div>
-                  <span
-                    className={`badge ${
-                      isAdmin ? "badge-primary" : "badge-success"
-                    }`}
-                    style={{
-                      backgroundColor: isAdmin ? "#f3e8ff" : "#dcfce7",
-                      color: isAdmin ? "#7e22ce" : "#15803d",
-                    }}
-                  >
-                    {isAdmin ? "Administrator" : "Candidate"}
-                  </span>
-                </div>
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-sm"
-                  style={{
-                    backgroundColor: isAdmin ? "#f3e8ff" : "#e0e7ff",
-                    color: isAdmin ? "#7e22ce" : "#4338ca",
-                    borderColor: isAdmin ? "#d8b4fe" : "#c7d2fe",
-                  }}
-                >
-                  {user?.name ? user.name[0].toUpperCase() : "U"}
-                </div>
               </div>
             </div>
           )}
