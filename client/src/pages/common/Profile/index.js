@@ -375,15 +375,19 @@ function Profile() {
                     <span style={{ fontSize: 14, color: "#64748b", fontWeight: 500 }}>Assigned Role:</span>
                     <span
                       style={{
-                        backgroundColor: isAdmin ? "#f3e8ff" : "#dcfce7",
-                        color: isAdmin ? "#7e22ce" : "#15803d",
+                        backgroundColor: (user?.email || "").toLowerCase() === "admin@quiz.com" ? "#fef3c7" : isAdmin ? "#f3e8ff" : "#dcfce7",
+                        color: (user?.email || "").toLowerCase() === "admin@quiz.com" ? "#b45309" : isAdmin ? "#7e22ce" : "#15803d",
                         fontWeight: 700,
                         fontSize: 12,
                         padding: "4px 12px",
                         borderRadius: 20,
                       }}
                     >
-                      {isAdmin ? "Admin" : "User"}
+                      {(user?.email || "").toLowerCase() === "admin@quiz.com"
+                        ? "👑 Super Admin"
+                        : isAdmin
+                        ? "🛡️ Admin"
+                        : "👤 User"}
                     </span>
                   </div>
 
@@ -406,6 +410,20 @@ function Profile() {
                       <i className="ri-file-list-3-line"></i> View Submissions & History
                     </button>
                   </div>
+
+                  {isAdmin && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 14, color: "#64748b", fontWeight: 500 }}>Admin Accounts:</span>
+                      <button
+                        type="button"
+                        className="primary-contained-btn"
+                        style={{ height: 34, padding: "0 14px", borderRadius: 8, fontSize: 12 }}
+                        onClick={() => navigate("/admin/users")}
+                      >
+                        <i className="ri-shield-keyhole-line"></i> Inspect All Admin Emails 👑
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </TabPane>

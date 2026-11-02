@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import WriteExam from "./pages/user/WriteExam";
 import UserReports from "./pages/user/UserReports";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminUsers from "./pages/admin/AdminUsers";
 import Profile from "./pages/common/Profile";
 import Leaderboard from "./pages/common/Leaderboard";
 import LandingPage from "./pages/common/LandingPage";
@@ -174,6 +175,14 @@ function App() {
             element={
               <ProtectedRoute requireAdmin={true}>
                 <AdminReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminUsers />
               </ProtectedRoute>
             }
           />

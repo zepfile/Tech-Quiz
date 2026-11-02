@@ -35,3 +35,21 @@ export const updateUserProfile = async (payload) => {
     return error.response.data;
   }
 };
+
+export const getAllUsers = async () => {
+  try {
+    const response = await axiosInstance.post('/api/users/get-all-users');
+    return response.data;
+  } catch (error) {
+    return error.response ? error.response.data : { success: false, message: error.message };
+  }
+};
+
+export const updateUserRole = async (payload) => {
+  try {
+    const response = await axiosInstance.post('/api/users/update-user-role', payload);
+    return response.data;
+  } catch (error) {
+    return error.response ? error.response.data : { success: false, message: error.message };
+  }
+};

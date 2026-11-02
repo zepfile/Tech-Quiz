@@ -233,4 +233,137 @@ router.post("/update-profile", authMiddleware, async (req, res) => {
   }
 });
 
+// Get all users and admin directory (Only for Admins, superadmin view)
+router.post("/get-all-users", authMiddleware, async (req, res) => {
+  try {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const userId = req.body.userId;
+
+    let caller = null;
+    if (isMongoConnected) {
+      caller = await User.findById(userId);
+    } else {
+      caller = memoryStore.users.find((u) => u._id === userId);
+    }
+
+    if (!caller || !caller.isAdmin) {
+      return res.status(403).send({
+        message: "Access Denied: Administrator role required to view admin directory",
+        success: false,
+      });
+    }
+
+    const superAdminEmail = (process.env.ADMIN_EMAIL || "admin@quiz.com").toLowerCase();
+
+    let users = [];
+    if (isMongoConnected) {
+      const dbUsers = await User.find({}, "name email isAdmin createdAt").sort({
+        isAdmin: -1,
+        createdAt: -1,
+      });
+      users = dbUsers.map((u) => ({
+        _id: u._id,
+        name: u.name,
+        email: u.email,
+        isAdmin: Boolean(u.isAdmin),
+        isSuperAdmin: (u.email || "").toLowerCase() === superAdminEmail,
+        createdAt: u.createdAt,
+      }));
+    } else {
+      users = memoryStore.users.map((u) => ({
+        _id: u._id,
+        name: u.name,
+        email: u.email,
+        isAdmin: Boolean(u.isAdmin),
+        isSuperAdmin: (u.email || "").toLowerCase() === superAdminEmail,
+        createdAt: u.createdAt,
+      }));
+    }
+
+    res.send({
+      message: "Admin directory fetched successfully",
+      success: true,
+      data: users,
+      superAdminEmail,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: error,
+      success: false,
+    });
+  }
+});
+
+// Update user role (Promote to Admin or Demote to User)
+router.post("/update-user-role", authMiddleware, async (req, res) => {
+  try {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const { targetUserId, newIsAdmin } = req.body;
+    const callerId = req.body.userId;
+
+    let caller = null;
+    if (isMongoConnected) {
+      caller = await User.findById(callerId);
+    } else {
+      caller = memoryStore.users.find((u) => u._id === callerId);
+    }
+
+    if (!caller || !caller.isAdmin) {
+      return res.status(403).send({
+        message: "Access Denied: Only Admins can modify account roles",
+        success: false,
+      });
+    }
+
+    const superAdminEmail = (process.env.ADMIN_EMAIL || "admin@quiz.com").toLowerCase();
+
+    let targetUser = null;
+    if (isMongoConnected) {
+      targetUser = await User.findById(targetUserId);
+    } else {
+      targetUser = memoryStore.users.find((u) => u._id === targetUserId);
+    }
+
+    if (!targetUser) {
+      return res.status(404).send({
+        message: "Target user not found",
+        success: false,
+      });
+    }
+
+    // Protect Super Admin from being demoted
+    if ((targetUser.email || "").toLowerCase() === superAdminEmail && !newIsAdmin) {
+      return res.status(400).send({
+        message: "Primary Super Admin account role cannot be revoked",
+        success: false,
+      });
+    }
+
+    targetUser.isAdmin = Boolean(newIsAdmin);
+
+    if (isMongoConnected) {
+      await targetUser.save();
+    }
+
+    res.send({
+      message: `Role successfully updated for ${targetUser.email}: ${
+        targetUser.isAdmin ? "Promoted to Admin" : "Demoted to User"
+      }`,
+      success: true,
+      data: {
+        _id: targetUser._id,
+        email: targetUser.email,
+        isAdmin: targetUser.isAdmin,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: error,
+      success: false,
+    });
+  }
+});
+
 module.exports = router;

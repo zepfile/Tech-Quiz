@@ -84,50 +84,59 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     },
   ];
 
-  const adminMenu = [
-    {
-      title: "Manage Exams",
-      paths: ["/admin/exams"],
-      icon: <i className="ri-dashboard-line"></i>,
-      onClick: () => navigate("/admin/exams"),
-    },
-    {
-      title: "Add New Exam",
-      paths: ["/admin/exams/add"],
-      icon: <i className="ri-add-circle-line"></i>,
-      onClick: () => navigate("/admin/exams/add"),
-    },
-    {
-      title: "Submissions & Reports",
-      paths: ["/admin/reports"],
-      icon: <i className="ri-file-chart-line"></i>,
-      onClick: () => navigate("/admin/reports"),
-    },
-    {
-      title: "Leaderboard & Ranks",
-      paths: ["/leaderboard"],
-      icon: <i className="ri-trophy-line"></i>,
-      onClick: () => navigate("/leaderboard"),
-    },
-    {
-      title: "Admin Profile",
-      paths: ["/profile"],
-      icon: <i className="ri-shield-user-line"></i>,
-      onClick: () => navigate("/profile"),
-    },
-    {
-      title: "User View Preview",
-      paths: ["/"],
-      icon: <i className="ri-eye-line"></i>,
-      onClick: () => navigate("/"),
-    },
-    {
-      title: "Sign Out",
-      paths: ["/logout"],
-      icon: <i className="ri-logout-box-r-line"></i>,
-      onClick: handleSignOut,
-    },
-  ];
+  const getAdminMenu = (currentUser) => {
+    const isSuperAdmin = (currentUser?.email || "").toLowerCase() === "admin@quiz.com";
+    return [
+      {
+        title: "Manage Exams",
+        paths: ["/admin/exams"],
+        icon: <i className="ri-dashboard-line"></i>,
+        onClick: () => navigate("/admin/exams"),
+      },
+      {
+        title: "Add New Exam",
+        paths: ["/admin/exams/add"],
+        icon: <i className="ri-add-circle-line"></i>,
+        onClick: () => navigate("/admin/exams/add"),
+      },
+      {
+        title: "Submissions & Reports",
+        paths: ["/admin/reports"],
+        icon: <i className="ri-file-chart-line"></i>,
+        onClick: () => navigate("/admin/reports"),
+      },
+      {
+        title: isSuperAdmin ? "Admin Emails & Roles 👑" : "Admin Directory & Roles",
+        paths: ["/admin/users"],
+        icon: <i className="ri-shield-keyhole-line"></i>,
+        onClick: () => navigate("/admin/users"),
+      },
+      {
+        title: "Leaderboard & Ranks",
+        paths: ["/leaderboard"],
+        icon: <i className="ri-trophy-line"></i>,
+        onClick: () => navigate("/leaderboard"),
+      },
+      {
+        title: "Admin Profile",
+        paths: ["/profile"],
+        icon: <i className="ri-shield-user-line"></i>,
+        onClick: () => navigate("/profile"),
+      },
+      {
+        title: "User View Preview",
+        paths: ["/"],
+        icon: <i className="ri-eye-line"></i>,
+        onClick: () => navigate("/"),
+      },
+      {
+        title: "Sign Out",
+        paths: ["/logout"],
+        icon: <i className="ri-logout-box-r-line"></i>,
+        onClick: handleSignOut,
+      },
+    ];
+  };
 
   const getUserData = async () => {
     try {
@@ -150,7 +159,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
         }
 
         if (userData.isAdmin) {
-          setMenu(adminMenu);
+          setMenu(getAdminMenu(userData));
         } else {
           setMenu(userMenu);
         }
@@ -173,7 +182,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
   useEffect(() => {
     if (user) {
-      setMenu(user.isAdmin ? adminMenu : userMenu);
+      setMenu(user.isAdmin ? getAdminMenu(user) : userMenu);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -346,9 +355,12 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                   width: 36,
                   height: 36,
                   borderRadius: "50%",
-                  background: isAdmin
-                    ? "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)"
-                    : "linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)",
+                  background:
+                    (user?.email || "").toLowerCase() === "admin@quiz.com"
+                      ? "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+                      : isAdmin
+                      ? "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)"
+                      : "linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)",
                   color: "#ffffff",
                   display: "flex",
                   alignItems: "center",
@@ -359,7 +371,11 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 }}
               >
-                {user?.name ? user.name[0].toUpperCase() : "U"}
+                {(user?.email || "").toLowerCase() === "admin@quiz.com"
+                  ? "👑"
+                  : user?.name
+                  ? user.name[0].toUpperCase()
+                  : "U"}
               </div>
               <div style={{ overflow: "hidden", flex: 1 }}>
                 <div
@@ -393,7 +409,11 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                       display: "inline-block",
                     }}
                   ></span>
-                  {isAdmin ? "Admin • Active" : "User • Active"}
+                  {(user?.email || "").toLowerCase() === "admin@quiz.com"
+                    ? "Super Admin • Active 👑"
+                    : isAdmin
+                    ? "Admin • Active"
+                    : "User • Active"}
                 </div>
               </div>
               <i

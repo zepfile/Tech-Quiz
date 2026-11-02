@@ -331,15 +331,19 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
                 <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Portal Role:</span>
                 <span
                   style={{
-                    backgroundColor: isAdmin ? "#f3e8ff" : "#dcfce7",
-                    color: isAdmin ? "#7e22ce" : "#15803d",
+                    backgroundColor: (user?.email || "").toLowerCase() === "admin@quiz.com" ? "#fef3c7" : isAdmin ? "#f3e8ff" : "#dcfce7",
+                    color: (user?.email || "").toLowerCase() === "admin@quiz.com" ? "#b45309" : isAdmin ? "#7e22ce" : "#15803d",
                     fontWeight: 700,
                     fontSize: 12,
                     padding: "3px 10px",
                     borderRadius: 20,
                   }}
                 >
-                  {isAdmin ? "Admin" : "User"}
+                  {(user?.email || "").toLowerCase() === "admin@quiz.com"
+                    ? "👑 Super Admin"
+                    : isAdmin
+                    ? "🛡️ Admin"
+                    : "👤 User"}
                 </span>
               </div>
 
@@ -351,6 +355,20 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
                 </span>
               </div>
             </div>
+
+            {isAdmin && (
+              <button
+                type="button"
+                className="primary-contained-btn"
+                style={{ width: "100%", marginTop: 14, height: 38, fontSize: 13 }}
+                onClick={() => {
+                  onCancel();
+                  window.location.href = "/admin/users";
+                }}
+              >
+                <i className="ri-shield-keyhole-line"></i> Inspect All Admin Emails & Roles 👑
+              </button>
+            )}
           </TabPane>
 
           {/* Tab 2: Edit Profile */}
