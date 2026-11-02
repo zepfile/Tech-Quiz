@@ -6,9 +6,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "overrides": {
-    "buffer-equal-constant-time": "^1.0.2"
-  },
   "scripts": {
     "start": "node server/server.js",
     "server": "nodemon server/server.js",
