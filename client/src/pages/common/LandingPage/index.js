@@ -1,12 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import { Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
-import { BrandLogo, CategoryBadgeIcon } from "../../../components/TechIcons";
+import { BrandLogoWithText, CategoryBadgeIcon } from "../../../components/TechIcons";
 import { HeroDashboardIllustration } from "../../../components/SvgIllustrations";
 
 function LandingPage() {
   const navigate = useNavigate();
   const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+  // Day & Night mode state with localStorage persistence
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem("techquiz_landing_theme");
+    return saved ? saved === "dark" : true; // Default is modern dark
+  });
+
+  const toggleTheme = () => {
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    localStorage.setItem("techquiz_landing_theme", next ? "dark" : "light");
+  };
+
+  // Color theme tokens for Day vs Night
+  const theme = {
+    bg: isDarkMode ? "#0b0f19" : "#f8fafc",
+    textPrimary: isDarkMode ? "#ffffff" : "#0f172a",
+    textSecondary: isDarkMode ? "#94a3b8" : "#475569",
+    textMuted: isDarkMode ? "#64748b" : "#64748b",
+    navBg: isDarkMode ? "rgba(11, 15, 25, 0.88)" : "rgba(255, 255, 255, 0.92)",
+    navBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    navLink: isDarkMode ? "#cbd5e1" : "#475569",
+    navLinkHover: isDarkMode ? "#ffffff" : "#0f172a",
+    themeToggleBg: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    themeToggleBorder: isDarkMode ? "rgba(255, 255, 255, 0.16)" : "#cbd5e1",
+    themeToggleText: isDarkMode ? "#f8fafc" : "#0f172a",
+    tagBg: isDarkMode ? "rgba(99, 102, 241, 0.15)" : "#e0e7ff",
+    tagBorder: isDarkMode ? "rgba(129, 140, 248, 0.3)" : "#c7d2fe",
+    tagColor: isDarkMode ? "#a5b4fc" : "#4338ca",
+    cardBg: isDarkMode ? "rgba(15, 23, 42, 0.6)" : "#ffffff",
+    cardBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
+    featureCardBg: isDarkMode ? "#111827" : "#ffffff",
+    featureCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    featureCardShadow: isDarkMode ? "0 4px 20px rgba(0, 0, 0, 0.3)" : "0 4px 18px rgba(15, 23, 42, 0.06)",
+    metricsBg: isDarkMode ? "rgba(15, 23, 42, 0.5)" : "#f1f5f9",
+    metricsBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    sectionAltBg: isDarkMode ? "rgba(15, 23, 42, 0.4)" : "#f1f5f9",
+    sectionAltBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    stepCardBg: isDarkMode ? "rgba(15, 23, 42, 0.6)" : "#ffffff",
+    stepCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    stepCardShadow: isDarkMode ? "none" : "0 4px 16px rgba(15, 23, 42, 0.05)",
+    stepNumberColor: isDarkMode ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.2)",
+    footerBg: isDarkMode ? "#070a10" : "#ffffff",
+    footerBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    heroIllustrationBg: isDarkMode
+      ? "linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)"
+      : "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+    heroIllustrationBorder: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "#cbd5e1",
+    heroIllustrationShadow: isDarkMode ? "0 25px 50px -12px rgba(0, 0, 0, 0.6)" : "0 20px 40px -10px rgba(15, 23, 42, 0.12)",
+    ambientGlow: isDarkMode
+      ? "radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(11, 15, 25, 0) 70%)"
+      : "radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(248, 250, 252, 0) 70%)",
+  };
 
   const featuredTracks = [
     {
@@ -119,11 +172,12 @@ function LandingPage() {
   return (
     <div
       style={{
-        backgroundColor: "#0b0f19",
-        color: "#ffffff",
+        backgroundColor: theme.bg,
+        color: theme.textPrimary,
         minHeight: "100vh",
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         overflowX: "hidden",
+        transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
       {/* 1. STICKY MODERN NAVBAR */}
@@ -132,10 +186,11 @@ function LandingPage() {
           position: "sticky",
           top: 0,
           zIndex: 100,
-          backgroundColor: "rgba(11, 15, 25, 0.85)",
+          backgroundColor: theme.navBg,
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          borderBottom: `1px solid ${theme.navBorder}`,
           padding: "16px 32px",
+          transition: "background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
         <div
@@ -147,43 +202,70 @@ function LandingPage() {
             alignItems: "center",
           }}
         >
-          {/* Brand Logo */}
-          <div
-            style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+          {/* Brand Logo with New TechQuiz SVG */}
+          <BrandLogoWithText
+            size={38}
+            theme={isDarkMode ? "dark" : "light"}
             onClick={() => navigate("/")}
-          >
-            <BrandLogo size={36} />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "-0.02em", color: "#ffffff" }}>
-                TechQuiz<span style={{ color: "#38bdf8" }}>.io</span>
-              </span>
-              <span style={{ fontSize: 9, color: "#818cf8", fontWeight: 700, letterSpacing: "0.08em" }}>
-                ASSESSMENT PLATFORM
-              </span>
-            </div>
-          </div>
+            subtext="ASSESSMENT PLATFORM"
+          />
 
           {/* Quick Links (Hidden on tiny screens) */}
           <div style={{ display: "flex", alignItems: "center", gap: 28 }} className="hidden-mobile">
-            <a href="#tracks" style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+            <a href="#tracks" style={{ color: theme.navLink, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               Assessment Tracks
             </a>
-            <a href="#features" style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+            <a href="#features" style={{ color: theme.navLink, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               Features
             </a>
-            <a href="#how-it-works" style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
+            <a href="#how-it-works" style={{ color: theme.navLink, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               How It Works
             </a>
             <span
               onClick={() => navigate("/leaderboard")}
-              style={{ color: "#facc15", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+              style={{ color: "#eab308", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
             >
               <i className="ri-trophy-line"></i> Leaderboard
             </span>
           </div>
 
-          {/* Auth Actions */}
+          {/* Controls: Day/Night Theme Toggle + Auth Buttons */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Day & Night Mode Switcher Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={isDarkMode ? "Switch to Day Mode (Light Theme)" : "Switch to Night Mode (Dark Theme)"}
+              style={{
+                height: 38,
+                padding: "0 14px",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                backgroundColor: theme.themeToggleBg,
+                border: `1px solid ${theme.themeToggleBorder}`,
+                color: theme.themeToggleText,
+                transition: "all 0.25s ease",
+                boxShadow: isDarkMode ? "none" : "0 2px 4px rgba(0,0,0,0.04)",
+              }}
+            >
+              {isDarkMode ? (
+                <>
+                  <i className="ri-sun-fill" style={{ color: "#facc15", fontSize: 16 }}></i>
+                  <span style={{ fontSize: 12 }}>Day</span>
+                </>
+              ) : (
+                <>
+                  <i className="ri-moon-fill" style={{ color: "#6366f1", fontSize: 16 }}></i>
+                  <span style={{ fontSize: 12 }}>Night</span>
+                </>
+              )}
+            </button>
+
             {isLoggedIn ? (
               <button
                 type="button"
@@ -212,8 +294,9 @@ function LandingPage() {
                     borderRadius: 10,
                     fontSize: 13,
                     fontWeight: 600,
-                    borderColor: "rgba(255, 255, 255, 0.2)",
-                    color: "#ffffff",
+                    borderColor: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "#cbd5e1",
+                    color: isDarkMode ? "#ffffff" : "#0f172a",
+                    backgroundColor: isDarkMode ? "transparent" : "#ffffff",
                   }}
                 >
                   Sign In
@@ -250,7 +333,7 @@ function LandingPage() {
             transform: "translateX(-50%)",
             width: "600px",
             height: "300px",
-            background: "radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(11, 15, 25, 0) 70%)",
+            background: theme.ambientGlow,
             filter: "blur(60px)",
             pointerEvents: "none",
           }}
@@ -263,15 +346,15 @@ function LandingPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              background: "rgba(99, 102, 241, 0.15)",
-              border: "1px solid rgba(129, 140, 248, 0.3)",
+              background: theme.tagBg,
+              border: `1px solid ${theme.tagBorder}`,
               padding: "6px 18px",
               borderRadius: 30,
               marginBottom: 24,
             }}
           >
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#34d399", display: "inline-block" }}></span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#a5b4fc", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: theme.tagColor, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               ENTERPRISE-GRADE TECHNICAL ASSESSMENTS
             </span>
           </div>
@@ -285,7 +368,7 @@ function LandingPage() {
               letterSpacing: "-0.03em",
               maxWidth: 960,
               margin: "0 auto 20px auto",
-              color: "#ffffff",
+              color: theme.textPrimary,
             }}
           >
             Validate & Elevate Your Developer Skills With{" "}
@@ -304,7 +387,7 @@ function LandingPage() {
           <p
             style={{
               fontSize: "clamp(15px, 2vw, 18px)",
-              color: "#94a3b8",
+              color: theme.textSecondary,
               maxWidth: 760,
               margin: "0 auto 36px auto",
               lineHeight: 1.6,
@@ -353,9 +436,10 @@ function LandingPage() {
                 borderRadius: 12,
                 fontSize: 15,
                 fontWeight: 600,
-                borderColor: "rgba(255, 255, 255, 0.2)",
-                color: "#ffffff",
-                background: "rgba(255, 255, 255, 0.04)",
+                borderColor: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "#cbd5e1",
+                color: isDarkMode ? "#ffffff" : "#0f172a",
+                background: isDarkMode ? "rgba(255, 255, 255, 0.04)" : "#ffffff",
+                boxShadow: isDarkMode ? "none" : "0 2px 8px rgba(0,0,0,0.05)",
               }}
             >
               <i className="ri-trophy-line" style={{ color: "#facc15", marginRight: 6 }}></i>
@@ -370,9 +454,10 @@ function LandingPage() {
               margin: "0 auto",
               borderRadius: 20,
               padding: "16px",
-              background: "linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+              background: theme.heroIllustrationBg,
+              border: `1px solid ${theme.heroIllustrationBorder}`,
+              boxShadow: theme.heroIllustrationShadow,
+              transition: "all 0.3s ease",
             }}
           >
             <HeroDashboardIllustration height={260} />
@@ -383,10 +468,11 @@ function LandingPage() {
       {/* 3. METRICS STRIP */}
       <section
         style={{
-          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          backgroundColor: "rgba(15, 23, 42, 0.5)",
+          borderTop: `1px solid ${theme.metricsBorder}`,
+          borderBottom: `1px solid ${theme.metricsBorder}`,
+          backgroundColor: theme.metricsBg,
           padding: "36px 24px",
+          transition: "all 0.3s ease",
         }}
       >
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
@@ -398,10 +484,10 @@ function LandingPage() {
               { num: "4.9 / 5.0", label: "Candidate Satisfaction Score" },
             ].map((metric, i) => (
               <Col xs={12} sm={6} key={i} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 900, color: "#ffffff" }}>
+                <div style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 900, color: theme.textPrimary }}>
                   {metric.num}
                 </div>
-                <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>
+                <div style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4 }}>
                   {metric.label}
                 </div>
               </Col>
@@ -416,10 +502,10 @@ function LandingPage() {
           <span style={{ fontSize: 12, fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
             READY-TO-EVALUATE MODULES
           </span>
-          <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: "#ffffff", marginTop: 8 }}>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: theme.textPrimary, marginTop: 8 }}>
             Curated Assessment Tracks
           </h2>
-          <p style={{ color: "#94a3b8", fontSize: 15, maxWidth: 600, margin: "8px auto 0 auto" }}>
+          <p style={{ color: theme.textSecondary, fontSize: 15, maxWidth: 600, margin: "8px auto 0 auto" }}>
             Explore standardized technical evaluations across contemporary web engineering domains.
           </p>
         </div>
@@ -430,15 +516,16 @@ function LandingPage() {
               <div
                 className="card"
                 style={{
-                  backgroundColor: "rgba(15, 23, 42, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  backgroundColor: theme.cardBg,
+                  border: `1px solid ${theme.cardBorder}`,
                   borderRadius: 18,
                   padding: "24px",
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  transition: "transform 0.2s ease, border-color 0.2s ease",
+                  transition: "transform 0.2s ease, border-color 0.2s ease, background-color 0.3s ease",
+                  boxShadow: isDarkMode ? "none" : "0 4px 16px rgba(15, 23, 42, 0.05)",
                 }}
               >
                 <div>
@@ -446,9 +533,9 @@ function LandingPage() {
                     <CategoryBadgeIcon category={track.category} size={42} />
                     <span
                       style={{
-                        backgroundColor: "rgba(99, 102, 241, 0.2)",
-                        color: "#a5b4fc",
-                        border: "1px solid rgba(99, 102, 241, 0.3)",
+                        backgroundColor: isDarkMode ? "rgba(99, 102, 241, 0.2)" : "#e0e7ff",
+                        color: isDarkMode ? "#a5b4fc" : "#4338ca",
+                        border: `1px solid ${isDarkMode ? "rgba(99, 102, 241, 0.3)" : "#c7d2fe"}`,
                         padding: "3px 10px",
                         borderRadius: 20,
                         fontSize: 11,
@@ -459,10 +546,10 @@ function LandingPage() {
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>
                     {track.name}
                   </h3>
-                  <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5, marginBottom: 18 }}>
+                  <p style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.5, marginBottom: 18 }}>
                     {track.desc}
                   </p>
                 </div>
@@ -472,11 +559,11 @@ function LandingPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderTop: `1px solid ${theme.cardBorder}`,
                     paddingTop: 16,
                   }}
                 >
-                  <span style={{ fontSize: 12, color: "#cbd5e1", fontWeight: 600 }}>
+                  <span style={{ fontSize: 12, color: theme.textSecondary, fontWeight: 600 }}>
                     {track.questions}
                   </span>
                   <button
@@ -488,8 +575,9 @@ function LandingPage() {
                       padding: "0 14px",
                       borderRadius: 8,
                       fontSize: 12,
-                      borderColor: "rgba(56, 189, 248, 0.4)",
-                      color: "#38bdf8",
+                      borderColor: "#0284c7",
+                      color: isDarkMode ? "#38bdf8" : "#0284c7",
+                      backgroundColor: isDarkMode ? "transparent" : "#f0f9ff",
                     }}
                   >
                     Start Track
@@ -506,9 +594,10 @@ function LandingPage() {
         id="features"
         style={{
           padding: "80px 24px",
-          backgroundColor: "rgba(15, 23, 42, 0.4)",
-          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          backgroundColor: theme.sectionAltBg,
+          borderTop: `1px solid ${theme.sectionAltBorder}`,
+          borderBottom: `1px solid ${theme.sectionAltBorder}`,
+          transition: "all 0.3s ease",
         }}
       >
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -516,10 +605,10 @@ function LandingPage() {
             <span style={{ fontSize: 12, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               ENTERPRISE CAPABILITIES
             </span>
-            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: "#ffffff", marginTop: 8 }}>
+            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: theme.textPrimary, marginTop: 8 }}>
               Built For Serious Technical Evaluations
             </h2>
-            <p style={{ color: "#94a3b8", fontSize: 15, maxWidth: 640, margin: "8px auto 0 auto" }}>
+            <p style={{ color: theme.textSecondary, fontSize: 15, maxWidth: 640, margin: "8px auto 0 auto" }}>
               Everything needed to conduct clean, proctored, verifiable technical evaluations at scale.
             </p>
           </div>
@@ -530,11 +619,13 @@ function LandingPage() {
                 <div
                   className="card"
                   style={{
-                    backgroundColor: "#111827",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    backgroundColor: theme.featureCardBg,
+                    border: `1px solid ${theme.featureCardBorder}`,
                     borderRadius: 18,
                     padding: "28px 24px",
                     height: "100%",
+                    boxShadow: theme.featureCardShadow,
+                    transition: "all 0.3s ease",
                   }}
                 >
                   <div
@@ -553,10 +644,10 @@ function LandingPage() {
                   >
                     <i className={feat.icon}></i>
                   </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>
                     {feat.title}
                   </h3>
-                  <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.6, margin: 0 }}>
                     {feat.desc}
                   </p>
                 </div>
@@ -569,13 +660,13 @@ function LandingPage() {
       {/* 6. HOW IT WORKS WORKFLOW */}
       <section id="how-it-works" style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 50 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#34d399", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: "0.08em" }}>
             SEAMLESS EXPERIENCE
           </span>
-          <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: "#ffffff", marginTop: 8 }}>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: theme.textPrimary, marginTop: 8 }}>
             How TechQuiz Works
           </h2>
-          <p style={{ color: "#94a3b8", fontSize: 15, maxWidth: 600, margin: "8px auto 0 auto" }}>
+          <p style={{ color: theme.textSecondary, fontSize: 15, maxWidth: 600, margin: "8px auto 0 auto" }}>
             Three simple steps to benchmark your capabilities and earn official proof of proficiency.
           </p>
         </div>
@@ -585,29 +676,31 @@ function LandingPage() {
             <Col xs={24} md={8} key={idx}>
               <div
                 style={{
-                  backgroundColor: "rgba(15, 23, 42, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  backgroundColor: theme.stepCardBg,
+                  border: `1px solid ${theme.stepCardBorder}`,
                   borderRadius: 18,
                   padding: "32px 24px",
                   height: "100%",
                   position: "relative",
+                  boxShadow: theme.stepCardShadow,
+                  transition: "all 0.3s ease",
                 }}
               >
                 <div
                   style={{
                     fontSize: 32,
                     fontWeight: 900,
-                    color: "rgba(99, 102, 241, 0.3)",
+                    color: theme.stepNumberColor,
                     marginBottom: 12,
                     fontFamily: "monospace",
                   }}
                 >
                   {step.step}
                 </div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>
                   {step.title}
                 </h3>
-                <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.6, margin: 0 }}>
                   {step.desc}
                 </p>
               </div>
@@ -662,9 +755,10 @@ function LandingPage() {
       {/* 8. FOOTER */}
       <footer
         style={{
-          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-          backgroundColor: "#070a10",
+          borderTop: `1px solid ${theme.footerBorder}`,
+          backgroundColor: theme.footerBg,
           padding: "36px 24px",
+          transition: "all 0.3s ease",
         }}
       >
         <div
@@ -678,33 +772,33 @@ function LandingPage() {
             gap: 16,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <BrandLogo size={28} />
-            <span style={{ fontSize: 15, fontWeight: 800, color: "#ffffff" }}>
-              TechQuiz<span style={{ color: "#38bdf8" }}>.io</span>
-            </span>
-          </div>
+          <BrandLogoWithText
+            size={30}
+            theme={isDarkMode ? "dark" : "light"}
+            onClick={() => navigate("/")}
+            subtext=""
+          />
 
-          <div style={{ fontSize: 13, color: "#64748b" }}>
+          <div style={{ fontSize: 13, color: theme.textMuted }}>
             © {new Date().getFullYear()} TechQuiz Platform. Built on full-stack MERN (MongoDB Atlas, Express, React, Node.js).
           </div>
 
           <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
             <span
               onClick={() => navigate("/leaderboard")}
-              style={{ color: "#94a3b8", cursor: "pointer" }}
+              style={{ color: theme.textSecondary, cursor: "pointer" }}
             >
               Leaderboard
             </span>
             <span
               onClick={() => navigate("/login")}
-              style={{ color: "#94a3b8", cursor: "pointer" }}
+              style={{ color: theme.textSecondary, cursor: "pointer" }}
             >
               Sign In
             </span>
             <span
               onClick={() => navigate("/register")}
-              style={{ color: "#94a3b8", cursor: "pointer" }}
+              style={{ color: theme.textSecondary, cursor: "pointer" }}
             >
               Register
             </span>
@@ -716,4 +810,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-

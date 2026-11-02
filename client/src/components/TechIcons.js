@@ -1,66 +1,197 @@
 import React from "react";
 
-// Modern Brand Logo (Hexagonal Gradient with Tech Spark)
+// Brand New Custom TechQuiz SVG Logo Mark
 export function BrandLogo({ size = 38, className = "" }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
+      viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
       <defs>
-        <linearGradient id="brandHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6366F1" />
-          <stop offset="50%" stopColor="#4F46E5" />
-          <stop offset="100%" stopColor="#312E81" />
+        {/* Futuristic Outer Glow Gradient */}
+        <linearGradient id="tqBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4F46E5" />
+          <stop offset="45%" stopColor="#7C3AED" />
+          <stop offset="100%" stopColor="#06B6D4" />
         </linearGradient>
-        <linearGradient id="boltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+        {/* Inner Hi-Tech Plate */}
+        <linearGradient id="tqInnerPlate" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1E1B4B" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#0F172A" stopOpacity="0.98" />
+        </linearGradient>
+
+        {/* Letter 'T' & Code Accent Gradient */}
+        <linearGradient id="tqAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#38BDF8" />
-          <stop offset="50%" stopColor="#FACC15" />
+          <stop offset="50%" stopColor="#818CF8" />
+          <stop offset="100%" stopColor="#C084FC" />
+        </linearGradient>
+
+        {/* Lightning 'Q' Slash Spark Gradient */}
+        <linearGradient id="tqSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#38BDF8" />
+          <stop offset="40%" stopColor="#FACC15" />
           <stop offset="100%" stopColor="#FB923C" />
         </linearGradient>
-        <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#4f46e5" floodOpacity="0.35" />
+
+        <filter id="tqShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#6366f1" floodOpacity="0.45" />
         </filter>
       </defs>
+
+      {/* Outer Rounded Chamfered Squircle */}
       <rect
-        x="4"
-        y="4"
-        width="40"
-        height="40"
-        rx="12"
-        fill="url(#brandHexGrad)"
-        filter="url(#logoGlow)"
+        x="3"
+        y="3"
+        width="58"
+        height="58"
+        rx="16"
+        fill="url(#tqBaseGrad)"
+        filter="url(#tqShadow)"
       />
-      {/* Code Brackets */}
+
+      {/* Inner Hi-Tech Plate */}
+      <rect
+        x="6"
+        y="6"
+        width="52"
+        height="52"
+        rx="13"
+        fill="url(#tqInnerPlate)"
+        stroke="rgba(255, 255, 255, 0.15)"
+        strokeWidth="1"
+      />
+
+      {/* Subtle Circuit Grid Accents */}
+      <circle cx="14" cy="14" r="1.5" fill="#38BDF8" fillOpacity="0.6" />
+      <circle cx="50" cy="14" r="1.5" fill="#C084FC" fillOpacity="0.6" />
+      <line x1="14" y1="14" x2="20" y2="14" stroke="#38BDF8" strokeWidth="1" strokeOpacity="0.3" />
+      <line x1="50" y1="14" x2="44" y2="14" stroke="#C084FC" strokeWidth="1" strokeOpacity="0.3" />
+
+      {/* The 'Q' (Quiz Circle / Orbital Shield) */}
+      <circle
+        cx="32"
+        cy="31"
+        r="14"
+        stroke="url(#tqAccentGrad)"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeDasharray="72 16"
+      />
+
+      {/* The 'T' (Tech Crossbar & Central Stem) */}
       <path
-        d="M16 19L11 24L16 29"
+        d="M24 23H40"
         stroke="#FFFFFF"
-        strokeWidth="2.5"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M32 23V37"
+        stroke="#FFFFFF"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+      />
+
+      {/* Terminal Code Glyphs on the Sides < > */}
+      <path
+        d="M14 28L11 31L14 34"
+        stroke="#38BDF8"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeOpacity="0.8"
+        strokeOpacity="0.75"
       />
       <path
-        d="M32 19L37 24L32 29"
-        stroke="#FFFFFF"
-        strokeWidth="2.5"
+        d="M50 28L53 31L50 34"
+        stroke="#C084FC"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeOpacity="0.8"
+        strokeOpacity="0.75"
       />
-      {/* Central Lightning Quiz Spark */}
+
+      {/* The Electric Lightning Bolt Tail completing the 'Q' */}
       <path
-        d="M26 12L19 25H25L22 36L31 22H24L26 12Z"
-        fill="url(#boltGrad)"
+        d="M39 36L35 44H41L38 52L49 39H43L46 36H39Z"
+        fill="url(#tqSparkGrad)"
         stroke="#FFFFFF"
-        strokeWidth="1.2"
+        strokeWidth="1"
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+// Full Brand Logo with Integrated Typography & Theme Sensitivity
+export function BrandLogoWithText({
+  size = 38,
+  theme = "dark",
+  onClick,
+  subtext = "ASSESSMENT PLATFORM",
+}) {
+  const isDark = theme === "dark";
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 12,
+        cursor: onClick ? "pointer" : "default",
+        userSelect: "none",
+      }}
+      onClick={onClick}
+    >
+      <BrandLogo size={size} />
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span
+            style={{
+              fontSize: Math.round(size * 0.52),
+              fontWeight: 900,
+              letterSpacing: "-0.02em",
+              color: isDark ? "#ffffff" : "#0f172a",
+              lineHeight: 1.1,
+            }}
+          >
+            Tech<span style={{ color: "#38bdf8" }}>Quiz</span>
+          </span>
+          <span
+            style={{
+              fontSize: Math.max(9, Math.round(size * 0.25)),
+              fontWeight: 800,
+              padding: "2px 6px",
+              borderRadius: 6,
+              background: isDark ? "rgba(56, 189, 248, 0.15)" : "#e0e7ff",
+              color: isDark ? "#38bdf8" : "#4338ca",
+              border: isDark ? "1px solid rgba(56, 189, 248, 0.3)" : "1px solid #c7d2fe",
+              lineHeight: 1,
+            }}
+          >
+            .io
+          </span>
+        </div>
+        {subtext && (
+          <span
+            style={{
+              fontSize: Math.max(8, Math.round(size * 0.24)),
+              color: isDark ? "#818cf8" : "#6366f1",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              lineHeight: 1.2,
+              marginTop: 2,
+            }}
+          >
+            {subtext}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
