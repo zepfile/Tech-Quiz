@@ -77,7 +77,7 @@ app.use((err, req, res, next) => {
 
 module.exports = app;
 
-if (!process.env.VERCEL) {
+if (require.main === module) {
   app.listen(port, () => {
     console.log(`===============================================`);
     console.log(` Quiz Application Server listening on port ${port}`);
