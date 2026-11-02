@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const dns = require("dns");
 
-try {
-  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-} catch (e) {
-  // ignore
+if (!process.env.VERCEL) {
+  try {
+    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+  } catch (e) {
+    // ignore
+  }
 }
 
 const seedMongoDbIfEmpty = async () => {
@@ -173,7 +175,8 @@ const connectDatabase = async () => {
 
   try {
     const conn = await mongoose.connect(mongoUrl, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 3000,
+      bufferCommands: false,
     });
     isConnected = true;
     console.log("=================================================");
@@ -190,9 +193,11 @@ const connectDatabase = async () => {
   }
 };
 
-connectDatabase().catch((e) => {
-  console.warn("[Database Init Catch]:", e.message);
-});
+if (!process.env.VERCEL) {
+  connectDatabase().catch((e) => {
+    console.warn("[Database Init Catch]:", e.message);
+  });
+}
 
 module.exports = {
   connection: mongoose.connection,
