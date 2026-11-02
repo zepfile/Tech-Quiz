@@ -29,9 +29,11 @@ function WriteExam() {
   // Anti-Cheating & Proctoring States
   const [tabSwitchWarnings, setTabSwitchWarnings] = useState(0);
   const [showWarningModal, setShowWarningModal] = useState(false);
+  const [violationReason, setViolationReason] = useState("");
   const [terminatedDueToCheating, setTerminatedDueToCheating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
   const lastViolationTime = useRef(0);
+  const examStartTime = useRef(0);
 
   const getExamData = async () => {
     try {
@@ -117,12 +119,15 @@ function WriteExam() {
     setIntervalId(id);
   };
 
-  // Anti-Cheating: Handle Violation (Debounced within 2 seconds)
+  // Anti-Cheating: Handle Violation (Debounced to 2000ms to prevent double-counting single ESC keystroke)
   const handleViolation = (reason) => {
     if (view !== "questions") return;
     const now = Date.now();
-    if (now - lastViolationTime.current < 2500) return;
+    if (now - lastViolationTime.current < 2000) return;
     lastViolationTime.current = now;
+
+    const detectedReason = reason || "Fullscreen exit or window blur detected";
+    setViolationReason(detectedReason);
 
     setTabSwitchWarnings((prev) => {
       const next = prev + 1;
@@ -130,7 +135,7 @@ function WriteExam() {
         setTerminatedDueToCheating(true);
         setShowWarningModal(false);
         if (intervalId) clearInterval(intervalId);
-        message.error("EXAMINATION TERMINATED: Maximum tab-switch violations reached!");
+        message.error("EXAMINATION TERMINATED: 3 proctoring violations recorded! Exam submitted as FAIL.");
         calculateResult(true);
       } else {
         setShowWarningModal(true);
@@ -139,37 +144,65 @@ function WriteExam() {
     });
   };
 
-  // Anti-Cheating: Tab switch / Window blur / Fullscreen listeners
+  // When switching to questions view, request fullscreen and initialize exam timer buffer
+  useEffect(() => {
+    if (view === "questions") {
+      examStartTime.current = Date.now();
+      requestFullscreen();
+    }
+  }, [view]);
+
+  // Anti-Cheating: Tab switch / Window blur / Fullscreen loss listeners
   useEffect(() => {
     if (view !== "questions") return;
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        handleViolation("Tab switched or minimized");
+        handleViolation("Browser tab switched or minimized");
       }
     };
 
     const handleWindowBlur = () => {
-      handleViolation("Window lost focus");
+      handleViolation("Window lost focus / clicked outside examination");
     };
 
     const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      const isFull = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isFull);
+
+      // Strictly detect exit from fullscreen during questions
+      if (!isFull && view === "questions") {
+        // 1.5s grace period for initial fullscreen setup
+        if (Date.now() - examStartTime.current > 1500) {
+          handleViolation("Fullscreen exited (ESC or window exit detected)! Fullscreen is strictly mandatory.");
+        }
+      }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleWindowBlur);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleWindowBlur);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, intervalId]);
 
-  // Anti-Cheating: Block Copy / Paste / Context Menu / Devtools shortcut keys
+  // Anti-Cheating: Block Copy / Paste / Context Menu / Devtools & ESC shortcut keys
   useEffect(() => {
     if (view !== "questions") return;
 
@@ -179,11 +212,28 @@ function WriteExam() {
     const handlePaste = (e) => e.preventDefault();
 
     const handleKeyDown = (e) => {
+      // ESC key detection: strictly count violation when ESC is pressed
+      if (e.key === "Escape" || e.code === "Escape" || e.keyCode === 27) {
+        handleViolation("ESC key pressed to exit Fullscreen! Fullscreen mode is strictly mandatory.");
+      }
+
+      // F11 fullscreen manipulation prevention
+      if (e.key === "F11" || e.code === "F11" || e.keyCode === 122) {
+        e.preventDefault();
+        handleViolation("F11 pressed! Fullscreen manipulation is strictly prohibited.");
+      }
+
+      // Alt+Tab window switching attempt
+      if (e.altKey && (e.key === "Tab" || e.code === "Tab")) {
+        e.preventDefault();
+        handleViolation("Alt+Tab window switching attempt detected!");
+      }
+
       // Prevent Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+Shift+I, F12
       if (
-        (e.ctrlKey && ["c", "v", "u", "a"].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && ["c", "v", "u", "a", "p", "s"].includes(e.key.toLowerCase())) ||
         e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i")
+        (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(e.key.toLowerCase()))
       ) {
         e.preventDefault();
       }
@@ -202,11 +252,18 @@ function WriteExam() {
       document.removeEventListener("paste", handlePaste);
       document.removeEventListener("keydown", handleKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
   const requestFullscreen = () => {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    const el = document.documentElement;
+    const rfs =
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.mozRequestFullScreen ||
+      el.msRequestFullscreen;
+    if (rfs) {
+      rfs.call(el).catch(() => {});
     }
   };
 
@@ -302,19 +359,20 @@ function WriteExam() {
                     type="button"
                     onClick={requestFullscreen}
                     style={{
-                      background: "#f1f5f9",
-                      border: "1px solid #cbd5e1",
+                      background: "#fee2e2",
+                      border: "1px solid #f87171",
+                      color: "#b91c1c",
                       borderRadius: 8,
-                      padding: "4px 10px",
+                      padding: "5px 12px",
                       fontSize: 12,
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4,
+                      gap: 6,
                     }}
                   >
-                    <i className="ri-fullscreen-line"></i> Enter Fullscreen
+                    <i className="ri-fullscreen-line"></i> Re-Enter Fullscreen (Required)
                   </button>
                 )}
 
@@ -346,7 +404,7 @@ function WriteExam() {
                   }}
                 >
                   <i className="ri-alert-line" style={{ marginRight: 4 }}></i>
-                  Tab Violations: {tabSwitchWarnings}/3
+                  Proctoring Violations: {tabSwitchWarnings}/3 (ESC/Tabs)
                 </span>
               </div>
             </div>
@@ -557,19 +615,19 @@ function WriteExam() {
           </div>
         )}
 
-        {/* Anti-Cheating Violation Warning Modal */}
+        {/* Anti-Cheating & Proctoring Violation Warning Modal */}
         <Modal
           visible={showWarningModal}
           footer={null}
           closable={false}
           centered
-          width={480}
-          bodyStyle={{ padding: "32px 24px", textAlign: "center", borderRadius: 20 }}
+          width={500}
+          bodyStyle={{ padding: "32px 28px", textAlign: "center", borderRadius: 20 }}
         >
           <div
             style={{
-              width: 64,
-              height: 64,
+              width: 68,
+              height: 68,
               borderRadius: "50%",
               backgroundColor: "#fef2f2",
               color: "#dc2626",
@@ -578,14 +636,15 @@ function WriteExam() {
               justifyContent: "center",
               fontSize: 34,
               margin: "0 auto 16px auto",
-              boxShadow: "0 4px 12px rgba(239, 68, 68, 0.2)",
+              boxShadow: "0 6px 18px rgba(239, 68, 68, 0.25)",
+              border: "2px solid #fecaca",
             }}
           >
-            <i className="ri-error-warning-line"></i>
+            <i className="ri-alarm-warning-line"></i>
           </div>
 
-          <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1e293b", margin: "0 0 8px 0" }}>
-            Tab-Switching Detected!
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: "0 0 8px 0" }}>
+            Strict Proctoring Violation Detected!
           </h3>
 
           <div
@@ -595,30 +654,54 @@ function WriteExam() {
               color: "#991b1b",
               fontWeight: 800,
               fontSize: 13,
-              padding: "4px 14px",
+              padding: "4px 16px",
               borderRadius: 20,
-              marginBottom: 16,
+              marginBottom: 14,
+              border: "1px solid #fca5a5",
             }}
           >
-            Warning {tabSwitchWarnings} of 3
+            ⚠️ Strike {tabSwitchWarnings} of 3 Recorded
           </div>
 
-          <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, margin: "0 0 24px 0" }}>
-            You switched tabs or minimized the browser window. This is strictly prohibited.
+          <div
+            style={{
+              backgroundColor: "#fff1f2",
+              border: "1px solid #fecdd3",
+              borderRadius: "10px",
+              padding: "10px 14px",
+              marginBottom: "16px",
+              color: "#be123c",
+              fontWeight: 600,
+              fontSize: "13px",
+              textAlign: "left",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+            }}
+          >
+            <i className="ri-error-warning-fill" style={{ fontSize: 16, marginTop: 1 }}></i>
+            <div>
+              <strong>Trigger:</strong> {violationReason || "ESC key pressed or Fullscreen mode exited."}
+            </div>
+          </div>
+
+          <p style={{ fontSize: 13.5, color: "#475569", lineHeight: 1.6, margin: "0 0 24px 0" }}>
+            Exiting Fullscreen mode (pressing <strong>ESC</strong>, F11, or minimizing window) is strictly monitored.
             <br />
-            <strong>You have {3 - tabSwitchWarnings} warning(s) remaining.</strong> If you switch tabs again, your examination will be automatically terminated and submitted immediately.
+            <strong>You have {Math.max(0, 3 - tabSwitchWarnings)} strike(s) remaining.</strong> Reaching 3 strikes will permanently terminate your assessment and record a FAIL score.
           </p>
 
           <button
             type="button"
             className="primary-contained-btn"
-            style={{ width: "100%", height: 44, borderRadius: 12 }}
+            style={{ width: "100%", height: 46, borderRadius: 12, fontSize: 14, fontWeight: 700 }}
             onClick={() => {
               setShowWarningModal(false);
               requestFullscreen();
             }}
           >
-            I Understand & Resume Assessment
+            <i className="ri-fullscreen-line" style={{ marginRight: 6 }}></i>
+            Re-Enter Fullscreen & Resume Assessment
           </button>
         </Modal>
 

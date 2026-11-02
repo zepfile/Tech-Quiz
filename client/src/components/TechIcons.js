@@ -272,6 +272,133 @@ export function FullStackIcon({ size = 28 }) {
   );
 }
 
+// Official Python SVG Badge
+export function PythonIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#1E293B" />
+      <path
+        d="M15.9 6C11.5 6 11.8 7.9 11.8 7.9L11.8 9.9H16.1V10.5H10.1C8.2 10.5 6.6 11.6 6.6 14.1C6.6 16.9 7.8 17.5 9.3 17.5H10.6V15.7C10.6 13.6 12.3 12 14.4 12H18.7C20.3 12 21.6 10.7 21.6 9.1V7.9C21.6 7.9 21.4 6 15.9 6ZM13.8 7.3C14.3 7.3 14.7 7.7 14.7 8.2C14.7 8.7 14.3 9.1 13.8 9.1C13.3 9.1 12.9 8.7 12.9 8.2C12.9 7.7 13.3 7.3 13.8 7.3Z"
+        fill="#38BDF8"
+      />
+      <path
+        d="M16.1 26C20.5 26 20.2 24.1 20.2 24.1L20.2 22.1H15.9V21.5H21.9C23.8 21.5 25.4 20.4 25.4 17.9C25.4 15.1 24.2 14.5 22.7 14.5H21.4V16.3C21.4 18.4 19.7 20 17.6 20H13.3C11.7 20 10.4 21.3 10.4 22.9V24.1C10.4 24.1 10.6 26 16.1 26ZM18.2 24.7C17.7 24.7 17.3 24.3 17.3 23.8C17.3 23.3 17.7 22.9 18.2 22.9C18.7 22.9 19.1 23.3 19.1 23.8C19.1 24.3 18.7 24.7 18.2 24.7Z"
+        fill="#FACC15"
+      />
+    </svg>
+  );
+}
+
+// Official Docker Whale SVG Badge
+export function DockerIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#0C4A6E" />
+      <rect x="7" y="14" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <rect x="11" y="14" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <rect x="15" y="14" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <rect x="11" y="11" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <rect x="15" y="11" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <rect x="15" y="8" width="3" height="2.5" rx="0.5" fill="#38BDF8" />
+      <path
+        d="M26.5 17C25.8 17 25.2 17.3 24.8 17.7C23.6 16.8 22 17 22 17C21.7 18.7 20.4 19.8 19 20H8C6.5 20 5.4 18.8 5.4 18.8C5 21.8 7.5 24 11 24C17.5 24 23 22 25.5 18C26 18.2 26.5 18.2 27 18C27.5 17.5 27 17 26.5 17Z"
+        fill="#38BDF8"
+      />
+    </svg>
+  );
+}
+
+// Java Coffee Cup SVG Badge
+export function JavaIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#1E1B4B" />
+      <path
+        d="M13 10C13 10 14 11 13 13C12 15 14 16 14 16C14 16 13 14 14 13C15 12 14 10 13 10Z"
+        fill="#F97316"
+      />
+      <path
+        d="M17 9C17 9 19 11 17 13.5C15 16 18 17 18 17C18 17 16 15 18 13.5C20 12 18 9 17 9Z"
+        fill="#EA580C"
+      />
+      <path
+        d="M9 19H21C21 23 18.5 25 15 25C11.5 25 9 23 9 19Z"
+        fill="#38BDF8"
+      />
+      <path
+        d="M21 19.5H23C24 19.5 24.5 20.5 24.5 21.5C24.5 22.5 24 23.5 23 23.5H21"
+        stroke="#38BDF8"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+// AWS & Cloud SVG Badge
+export function AwsIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#0F172A" />
+      <path
+        d="M8 15L10 10H12L14 15H12.5L12 13.5H10L9.5 15H8ZM10.4 12.2H11.6L11 10.7L10.4 12.2Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M14.5 10H16L17.5 14L19 10H20.5L22 14L23.5 10H25L23 15H21.5L20 11.5L18.5 15H17L14.5 10Z"
+        fill="#FFFFFF"
+      />
+      <path
+        d="M8 20C13 23 19 23 24 20"
+        stroke="#FF9900"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M22 19L24.5 20.2L22 21.5"
+        stroke="#FF9900"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// C / C++ Code Badge
+export function CppIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#004482" />
+      <path
+        d="M15 11C12 11 10 13 10 16C10 19 12 21 15 21C16.5 21 17.5 20.5 18 19.5L16.2 18.5C15.8 19 15.4 19.2 14.8 19.2C13.2 19.2 12.2 18 12.2 16C12.2 14 13.2 12.8 14.8 12.8C15.4 12.8 15.8 13 16.2 13.5L18 12.5C17.5 11.5 16.5 11 15 11Z"
+        fill="#FFFFFF"
+      />
+      <path d="M19 15H22M20.5 13.5V16.5" stroke="#659AD2" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M23 15H26M24.5 13.5V16.5" stroke="#659AD2" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// DevOps & Cloud Infrastructure Icon
+export function DevOpsIcon({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="6" fill="#18181B" />
+      <path
+        d="M12 12C9.5 12 7.5 13.8 7.5 16C7.5 18.2 9.5 20 12 20C14 20 15.5 18.8 16 17.5C16.5 18.8 18 20 20 20C22.5 20 24.5 18.2 24.5 16C24.5 13.8 22.5 12 20 12C18 12 16.5 13.2 16 14.5C15.5 13.2 14 12 12 12Z"
+        stroke="url(#devopsGrad)"
+        strokeWidth="2.5"
+      />
+      <defs>
+        <linearGradient id="devopsGrad" x1="7" y1="12" x2="25" y2="20">
+          <stop stopColor="#06B6D4" />
+          <stop offset="1" stopColor="#8B5CF6" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 // General Tech / Computer Science Icon
 export function GeneralTechIcon({ size = 28 }) {
   return (
@@ -292,6 +419,12 @@ export function CategoryBadgeIcon({ category = "", size = 32 }) {
   if (cat.includes("node")) return <NodeIcon size={size} />;
   if (cat.includes("mongo")) return <MongoIcon size={size} />;
   if (cat.includes("full") || cat.includes("stack") || cat.includes("mern")) return <FullStackIcon size={size} />;
+  if (cat.includes("python") || cat.includes("py")) return <PythonIcon size={size} />;
+  if (cat.includes("docker") || cat.includes("container") || cat.includes("k8s") || cat.includes("kube")) return <DockerIcon size={size} />;
+  if (cat.includes("java") && !cat.includes("script")) return <JavaIcon size={size} />;
+  if (cat.includes("aws") || cat.includes("cloud")) return <AwsIcon size={size} />;
+  if (cat.includes("c++") || cat.includes("cpp") || cat.includes("c#")) return <CppIcon size={size} />;
+  if (cat.includes("devops") || cat.includes("git") || cat.includes("ci") || cat.includes("cd")) return <DevOpsIcon size={size} />;
   return <GeneralTechIcon size={size} />;
 }
 

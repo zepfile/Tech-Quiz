@@ -25,6 +25,7 @@ function AddEditExam() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
   const params = useParams();
+  const [form] = Form.useForm();
 
   const onFinish = async (values) => {
     try {
@@ -76,6 +77,12 @@ function AddEditExam() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
+
+  useEffect(() => {
+    if (examData) {
+      form.setFieldsValue(examData);
+    }
+  }, [examData, form]);
 
   const deleteQuestion = async (questionId) => {
     try {
@@ -284,6 +291,7 @@ function AddEditExam() {
       <div className="mt-2">
         {(examData || !params.id) && (
           <Form
+            form={form}
             layout="vertical"
             onFinish={onFinish}
             initialValues={examData}
@@ -323,20 +331,87 @@ function AddEditExam() {
 
                     <Col span={24} md={6}>
                       <Form.Item
-                        label="Category / Tech Stack"
+                        label={
+                          <span style={{ fontWeight: 600 }}>
+                            Category / Tech Stack{" "}
+                            <span style={{ fontSize: 11, color: "#6366f1", fontWeight: 500 }}>
+                              (Type custom or pick)
+                            </span>
+                          </span>
+                        }
                         name="category"
-                        rules={[{ required: true, message: "Category is required" }]}
+                        rules={[{ required: true, message: "Category / Tech Stack is required" }]}
+                        help="Type custom stack e.g. Python, Docker, AWS, React..."
                       >
-                        <select>
-                          <option value="">Select Category</option>
-                          <option value="JavaScript">JavaScript</option>
-                          <option value="React">React.js</option>
-                          <option value="Node">Node.js</option>
-                          <option value="MongoDB">MongoDB</option>
-                          <option value="FullStack">FullStack MERN</option>
-                          <option value="General">General Tech</option>
-                        </select>
+                        <input
+                          type="text"
+                          list="category-suggestions"
+                          placeholder="Type or select Tech Stack..."
+                          autoComplete="off"
+                        />
                       </Form.Item>
+                      <datalist id="category-suggestions">
+                        <option value="JavaScript" />
+                        <option value="React" />
+                        <option value="Node" />
+                        <option value="MongoDB" />
+                        <option value="FullStack" />
+                        <option value="Python" />
+                        <option value="TypeScript" />
+                        <option value="Java" />
+                        <option value="C / C++" />
+                        <option value="Docker" />
+                        <option value="Kubernetes" />
+                        <option value="AWS" />
+                        <option value="DevOps" />
+                        <option value="Next.js" />
+                        <option value="SQL" />
+                        <option value="Cybersecurity" />
+                        <option value="General" />
+                      </datalist>
+
+                      {/* Quick click suggestions */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 5,
+                          marginTop: -8,
+                          marginBottom: 8,
+                        }}
+                      >
+                        {[
+                          "JavaScript",
+                          "React",
+                          "Node",
+                          "Python",
+                          "Docker",
+                          "AWS",
+                          "Java",
+                          "MongoDB",
+                          "FullStack",
+                        ].map((tech) => (
+                          <span
+                            key={tech}
+                            onClick={() => form.setFieldsValue({ category: tech })}
+                            style={{
+                              cursor: "pointer",
+                              fontSize: 10.5,
+                              padding: "2px 7px",
+                              borderRadius: 6,
+                              background: "#e0e7ff",
+                              color: "#4338ca",
+                              fontWeight: 600,
+                              border: "1px solid #c7d2fe",
+                              userSelect: "none",
+                              transition: "all 0.15s ease",
+                            }}
+                            title={`Click to fill: ${tech}`}
+                          >
+                            + {tech}
+                          </span>
+                        ))}
+                      </div>
                     </Col>
 
                     <Col span={24} md={8}>

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SetUser } from "../redux/usersSlice.js";
 import { useNavigate } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
-import { BrandLogo, BrandLogoWithText } from "./TechIcons";
+import { BrandLogo } from "./TechIcons";
 import ProfileModal from "./ProfileModal";
 
 function ProtectedRoute({ children, requireAdmin = false }) {

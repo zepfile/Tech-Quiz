@@ -122,7 +122,7 @@ function Instructions({ examData, setView, startTimer }) {
             Proctoring & Anti-Cheating Protocol Active:
           </div>
           <p style={{ margin: 0, fontSize: 12, color: "#991b1b", lineHeight: 1.6 }}>
-            • <strong>Tab-Switch Tracking:</strong> Switching tabs or minimizing the browser window will trigger a penalty warning. <strong>Exceeding 3 warnings will terminate and auto-submit the exam.</strong><br />
+            • <strong>Mandatory Fullscreen & ESC Tracking:</strong> Assessment runs in strict fullscreen. Pressing <strong>ESC</strong>, exiting fullscreen, switching tabs, or minimizing the window will trigger a penalty strike. <strong>3 strikes will permanently terminate and fail the exam.</strong><br />
             • <strong>Integrity Safeguards:</strong> Copying, pasting, right-clicking, text selection, and developer inspector keys are disabled during the test.
           </p>
         </div>
