@@ -9,7 +9,7 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Light / Day Theme Layout */
@@ -18,10 +18,10 @@
   color: #0f172a;
 }
 
-/* Dark / Night Theme Layout */
+/* Pure Black Night Theme Layout */
 .layout.theme-dark {
-  background-color: #0b0f19;
-  color: #ffffff;
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
 /* --------------------------------------------------------
@@ -31,11 +31,11 @@
   width: 250px;
   height: 100vh;
   padding: 20px 14px;
-  border-radius: 0; /* Anchored flush to the screen edge like a true sidebar */
+  border-radius: 0; /* Flush to the screen edge */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -49,11 +49,11 @@
   box-shadow: 2px 0 10px rgba(15, 23, 42, 0.03);
 }
 
-/* Dark / Night Theme Sidebar */
+/* Dark / Night Theme Sidebar (Pitch Black) */
 .sidebar.theme-dark {
-  background-color: #0f172a !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+  background-color: #050505 !important;
+  border-right: 1px solid #1f2937 !important;
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.7);
 }
 
 .sidebar.collapsed {
@@ -93,14 +93,14 @@
   color: #0f172a !important;
 }
 
-/* Dark Theme Menu Item */
+/* Dark Theme Menu Item (Crisp High-Contrast Text) */
 .sidebar.theme-dark .menu-item {
-  color: #94a3b8 !important;
+  color: #d4d4d8 !important;
 }
 
 .sidebar.theme-dark .menu-item:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #f8fafc !important;
+  background-color: #18181b;
+  color: #ffffff !important;
 }
 
 .sidebar.collapsed .menu-item {
@@ -114,11 +114,11 @@
   flex-shrink: 0;
 }
 
-/* Active Menu Item (Vibrant Indigo Gradient across both themes) */
+/* Active Menu Item */
 .active-menu-item {
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
   font-weight: 600;
 }
 
@@ -152,13 +152,13 @@
 }
 
 .sidebar.theme-dark .sidebar-theme-btn {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
+  background-color: #121215;
+  border: 1px solid #27272a;
+  color: #ffffff;
 }
 
 .sidebar.theme-dark .sidebar-theme-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #18181b;
   color: #ffffff;
 }
 
@@ -179,13 +179,59 @@
 }
 
 .sidebar.theme-dark .sidebar-user-footer {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #121215;
+  border: 1px solid #27272a;
 }
 
 .sidebar.theme-dark .sidebar-user-footer:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: #18181b;
+  border-color: #3f3f46;
+}
+
+/* --------------------------------------------------------
+   TAB PILL SELECTORS (Day & Night Mode Adaptive)
+   -------------------------------------------------------- */
+.tab-pill-container {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  background-color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.layout.theme-dark .tab-pill-container {
+  background-color: #0e0e11 !important;
+  border: 1px solid #27272a !important;
+}
+
+.tab-pill-btn {
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: transparent;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.tab-pill-btn.active {
+  background-color: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.layout.theme-dark .tab-pill-btn {
+  color: #a1a1aa !important;
+  background-color: transparent !important;
+}
+
+.layout.theme-dark .tab-pill-btn.active {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.4) !important;
 }
 
 /* --------------------------------------------------------
@@ -198,7 +244,7 @@
   flex-direction: column;
   overflow: hidden;
   padding: 16px;
-  transition: all 0.28s ease;
+  transition: all 0.25s ease;
 }
 
 .content {
@@ -207,7 +253,7 @@
   height: 100%;
   overflow-y: auto;
   width: 100%;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 /* Light Theme Content */
@@ -218,12 +264,12 @@
   color: #0f172a;
 }
 
-/* Dark Theme Content */
+/* Dark Theme Content (Pitch Black with Crisp White Text) */
 .content.theme-dark {
-  background-color: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  color: #f8fafc;
+  background-color: #000000 !important;
+  border: 1px solid #1f2937 !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6) !important;
+  color: #ffffff !important;
 }
 
 .content > div {
@@ -231,49 +277,187 @@
 }
 
 /* --------------------------------------------------------
-   THEME ADAPTATION FOR CARDS, HEADINGS & TABLES
+   TRUE OLED PURE BLACK NIGHT THEME RULES
    -------------------------------------------------------- */
+
+/* 1. All Headings and Typography in Night Mode */
 .layout.theme-dark h1,
 .layout.theme-dark h2,
 .layout.theme-dark h3,
 .layout.theme-dark h4,
 .layout.theme-dark h5,
-.layout.theme-dark h6 {
-  color: #f8fafc !important;
+.layout.theme-dark h6,
+.layout.theme-dark strong,
+.layout.theme-dark b,
+.layout.theme-dark label,
+.layout.theme-dark .ant-typography,
+.layout.theme-dark .text-slate-800,
+.layout.theme-dark .text-slate-900 {
+  color: #ffffff !important;
 }
 
+.layout.theme-dark p,
+.layout.theme-dark span:not(.badge):not(.ant-tag),
+.layout.theme-dark li {
+  color: #e4e4e7;
+}
+
+/* Muted subtitles */
+.layout.theme-dark .text-muted,
+.layout.theme-dark p[style*="color: #64748b"],
+.layout.theme-dark span[style*="color: #64748b"],
+.layout.theme-dark div[style*="color: #64748b"] {
+  color: #a1a1aa !important;
+}
+
+/* 2. Cards in Night Mode (Deep Charcoal Black #0a0a0c) */
 .layout.theme-dark .card,
-.layout.theme-dark .card-lg {
-  background-color: #1e293b !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #f8fafc !important;
+.layout.theme-dark .card-lg,
+.layout.theme-dark .ant-card {
+  background-color: #0a0a0c !important;
+  border-color: #27272a !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
 }
 
-.layout.theme-dark .divider {
-  border-color: rgba(255, 255, 255, 0.08) !important;
+/* 3. Automatic override for inline light backgrounds inside dark mode */
+.layout.theme-dark div[style*="background-color: #f8fafc"],
+.layout.theme-dark div[style*="backgroundColor: #f8fafc"],
+.layout.theme-dark div[style*="background-color: #f1f5f9"],
+.layout.theme-dark div[style*="backgroundColor: #f1f5f9"],
+.layout.theme-dark div[style*="background: #f1f5f9"],
+.layout.theme-dark div[style*="background: #f8fafc"],
+.layout.theme-dark div[style*="background-color: #ffffff"],
+.layout.theme-dark div[style*="backgroundColor: #ffffff"],
+.layout.theme-dark div[style*="background: #ffffff"],
+.layout.theme-dark div[style*="background-color: rgb(248, 250, 252)"],
+.layout.theme-dark div[style*="background-color: rgb(255, 255, 255)"],
+.layout.theme-dark div[style*="background-color: #e2e8f0"],
+.layout.theme-dark div[style*="backgroundColor: #e2e8f0"] {
+  background-color: #121215 !important;
+  border-color: #27272a !important;
+  color: #ffffff !important;
 }
 
+/* Force dark-mode white text on elements with hardcoded light-theme colors */
+.layout.theme-dark *[style*="color: #0f172a"],
+.layout.theme-dark *[style*="color: rgb(15, 23, 42)"],
+.layout.theme-dark *[style*="color: #475569"],
+.layout.theme-dark *[style*="color: #334155"] {
+  color: #ffffff !important;
+}
+
+/* 4. Dividers */
+.layout.theme-dark .divider,
+.layout.theme-dark .ant-divider {
+  border-color: #27272a !important;
+}
+
+/* 5. Tables in Night Mode */
 .layout.theme-dark .ant-table {
-  background-color: transparent !important;
-  color: #e2e8f0 !important;
+  background-color: #0a0a0c !important;
+  color: #ffffff !important;
+}
+
+.layout.theme-dark .ant-table-container {
+  border: 1px solid #27272a !important;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .layout.theme-dark .ant-table-thead > tr > th {
-  background-color: #1e293b !important;
-  color: #cbd5e1 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: #121215 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #27272a !important;
+  font-weight: 700;
 }
 
 .layout.theme-dark .ant-table-tbody > tr > td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  color: #e2e8f0 !important;
+  background-color: #0a0a0c !important;
+  border-bottom: 1px solid #1f2937 !important;
+  color: #ffffff !important;
 }
 
 .layout.theme-dark .ant-table-tbody > tr:hover > td {
-  background-color: rgba(255, 255, 255, 0.04) !important;
+  background-color: #18181b !important;
+  color: #ffffff !important;
 }
 
-/* Proctored Header (shown only during exam execution) */
+.layout.theme-dark .ant-pagination-item {
+  background-color: #121215 !important;
+  border-color: #27272a !important;
+}
+
+.layout.theme-dark .ant-pagination-item a {
+  color: #ffffff !important;
+}
+
+.layout.theme-dark .ant-pagination-item-active {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+}
+
+.layout.theme-dark .ant-pagination-prev button,
+.layout.theme-dark .ant-pagination-next button {
+  background-color: #121215 !important;
+  color: #ffffff !important;
+  border-color: #27272a !important;
+}
+
+/* 6. Form Inputs & Selects in Night Mode */
+.layout.theme-dark input,
+.layout.theme-dark textarea,
+.layout.theme-dark select,
+.layout.theme-dark .ant-input,
+.layout.theme-dark .ant-input-password,
+.layout.theme-dark .ant-select-selector {
+  background-color: #0e0e11 !important;
+  border-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+.layout.theme-dark input::placeholder,
+.layout.theme-dark textarea::placeholder,
+.layout.theme-dark .ant-input::placeholder {
+  color: #71717a !important;
+}
+
+/* 7. Tabs in Night Mode */
+.layout.theme-dark .ant-tabs-nav {
+  color: #a1a1aa !important;
+}
+
+.layout.theme-dark .ant-tabs-tab {
+  color: #a1a1aa !important;
+}
+
+.layout.theme-dark .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #818cf8 !important;
+  font-weight: 700;
+}
+
+.layout.theme-dark .ant-tabs-ink-bar {
+  background: #818cf8 !important;
+}
+
+/* 8. Ant Design Empty State */
+.layout.theme-dark .ant-empty-description {
+  color: #a1a1aa !important;
+}
+
+/* 9. Header for Proctored Runner in Dark Mode */
+.layout.theme-dark .header {
+  background: #0a0a0c !important;
+  border-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+.layout.theme-dark .header span,
+.layout.theme-dark .header strong {
+  color: #ffffff !important;
+}
+
+/* Default Light Proctored Header */
 .header {
   background: #ffffff;
   color: #0f172a !important;

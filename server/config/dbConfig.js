@@ -158,10 +158,10 @@ const seedMongoDbIfEmpty = async () => {
   }
 };
 
-let isConnected = false;
+let cachedPromise = null;
 
 const connectDatabase = async () => {
-  if (isConnected && mongoose.connection.readyState === 1) {
+  if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
 
@@ -169,26 +169,36 @@ const connectDatabase = async () => {
 
   if (!mongoUrl || mongoUrl.includes("127.0.0.1") || mongoUrl.includes("localhost")) {
     console.warn(`[Database Notice] No external MongoDB Atlas URL configured in .env`);
-    console.log("[Database] Active in-memory fallback enabled for zero-setup execution.");
     return null;
   }
 
+  if (cachedPromise) {
+    return cachedPromise;
+  }
+
   try {
-    const conn = await mongoose.connect(mongoUrl, {
-      serverSelectionTimeoutMS: 3000,
-      bufferCommands: false,
-    });
-    isConnected = true;
-    console.log("=================================================");
-    console.log(" [MongoDB Atlas] LIVE CLOUD DATABASE CONNECTED! ");
-    console.log(" All data is now actively writing to MongoDB!   ");
-    console.log("=================================================");
-    await seedMongoDbIfEmpty();
-    return conn;
+    cachedPromise = mongoose
+      .connect(mongoUrl, {
+        serverSelectionTimeoutMS: 4000,
+        maxPoolSize: 10,
+        bufferCommands: false,
+      })
+      .then((conn) => {
+        // Run seed asynchronously in the background so it never blocks HTTP responses!
+        seedMongoDbIfEmpty().catch((err) =>
+          console.warn("[Background Seed Notice]:", err.message)
+        );
+        return conn;
+      })
+      .catch((err) => {
+        cachedPromise = null;
+        throw err;
+      });
+
+    return await cachedPromise;
   } catch (err) {
-    isConnected = false;
-    console.warn(`[Database Notice] Could not connect to MongoDB at "${mongoUrl}": ${err.message}`);
-    console.log("[Database] Active in-memory fallback enabled for zero-setup execution.");
+    cachedPromise = null;
+    console.warn(`[Database Notice] Could not connect to MongoDB: ${err.message}`);
     return null;
   }
 };

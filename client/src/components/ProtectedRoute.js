@@ -128,9 +128,13 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
   const getUserData = async () => {
     try {
-      dispatch(ShowLoading());
+      if (!user) {
+        dispatch(ShowLoading());
+      }
       const response = await getUserInfo();
-      dispatch(HideLoading());
+      if (!user) {
+        dispatch(HideLoading());
+      }
       if (response.success) {
         const userData = response.data;
         dispatch(SetUser(userData));
@@ -157,6 +161,13 @@ function ProtectedRoute({ children, requireAdmin = false }) {
       navigate("/login");
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      setMenu(user.isAdmin ? adminMenu : userMenu);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   useEffect(() => {
     if (localStorage.getItem("token")) {

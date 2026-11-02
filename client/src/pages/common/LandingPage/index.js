@@ -23,44 +23,44 @@ function LandingPage() {
     localStorage.setItem("techquiz_landing_theme", next ? "dark" : "light");
   };
 
-  // Color theme tokens for Day vs Night
+  // Color theme tokens for Day vs Night (Pure OLED Black in Night Mode)
   const theme = {
-    bg: isDarkMode ? "#0b0f19" : "#f8fafc",
+    bg: isDarkMode ? "#000000" : "#f8fafc",
     textPrimary: isDarkMode ? "#ffffff" : "#0f172a",
-    textSecondary: isDarkMode ? "#94a3b8" : "#475569",
-    textMuted: isDarkMode ? "#64748b" : "#64748b",
-    navBg: isDarkMode ? "rgba(11, 15, 25, 0.88)" : "rgba(255, 255, 255, 0.92)",
-    navBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
-    navLink: isDarkMode ? "#cbd5e1" : "#475569",
+    textSecondary: isDarkMode ? "#e4e4e7" : "#475569",
+    textMuted: isDarkMode ? "#a1a1aa" : "#64748b",
+    navBg: isDarkMode ? "rgba(0, 0, 0, 0.95)" : "rgba(255, 255, 255, 0.92)",
+    navBorder: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "#e2e8f0",
+    navLink: isDarkMode ? "#e4e4e7" : "#475569",
     navLinkHover: isDarkMode ? "#ffffff" : "#0f172a",
-    themeToggleBg: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
-    themeToggleBorder: isDarkMode ? "rgba(255, 255, 255, 0.16)" : "#cbd5e1",
-    themeToggleText: isDarkMode ? "#f8fafc" : "#0f172a",
-    tagBg: isDarkMode ? "rgba(99, 102, 241, 0.15)" : "#e0e7ff",
-    tagBorder: isDarkMode ? "rgba(129, 140, 248, 0.3)" : "#c7d2fe",
-    tagColor: isDarkMode ? "#a5b4fc" : "#4338ca",
-    cardBg: isDarkMode ? "rgba(15, 23, 42, 0.6)" : "#ffffff",
-    cardBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
-    featureCardBg: isDarkMode ? "#111827" : "#ffffff",
-    featureCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
-    featureCardShadow: isDarkMode ? "0 4px 20px rgba(0, 0, 0, 0.3)" : "0 4px 18px rgba(15, 23, 42, 0.06)",
-    metricsBg: isDarkMode ? "rgba(15, 23, 42, 0.5)" : "#f1f5f9",
-    metricsBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
-    sectionAltBg: isDarkMode ? "rgba(15, 23, 42, 0.4)" : "#f1f5f9",
-    sectionAltBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
-    stepCardBg: isDarkMode ? "rgba(15, 23, 42, 0.6)" : "#ffffff",
-    stepCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    themeToggleBg: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
+    themeToggleBorder: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "#cbd5e1",
+    themeToggleText: isDarkMode ? "#ffffff" : "#0f172a",
+    tagBg: isDarkMode ? "rgba(99, 102, 241, 0.2)" : "#e0e7ff",
+    tagBorder: isDarkMode ? "rgba(129, 140, 248, 0.4)" : "#c7d2fe",
+    tagColor: isDarkMode ? "#c7d2fe" : "#4338ca",
+    cardBg: isDarkMode ? "#0a0a0c" : "#ffffff",
+    cardBorder: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "#e2e8f0",
+    featureCardBg: isDarkMode ? "#09090b" : "#ffffff",
+    featureCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
+    featureCardShadow: isDarkMode ? "0 4px 20px rgba(0, 0, 0, 0.7)" : "0 4px 18px rgba(15, 23, 42, 0.06)",
+    metricsBg: isDarkMode ? "#09090b" : "#f1f5f9",
+    metricsBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
+    sectionAltBg: isDarkMode ? "#050507" : "#f1f5f9",
+    sectionAltBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
+    stepCardBg: isDarkMode ? "#0a0a0c" : "#ffffff",
+    stepCardBorder: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0",
     stepCardShadow: isDarkMode ? "none" : "0 4px 16px rgba(15, 23, 42, 0.05)",
-    stepNumberColor: isDarkMode ? "rgba(99, 102, 241, 0.3)" : "rgba(99, 102, 241, 0.2)",
-    footerBg: isDarkMode ? "#070a10" : "#ffffff",
-    footerBorder: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0",
+    stepNumberColor: isDarkMode ? "rgba(129, 140, 248, 0.4)" : "rgba(99, 102, 241, 0.2)",
+    footerBg: isDarkMode ? "#000000" : "#ffffff",
+    footerBorder: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "#e2e8f0",
     heroIllustrationBg: isDarkMode
-      ? "linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)"
+      ? "linear-gradient(180deg, #09090b 0%, #000000 100%)"
       : "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
-    heroIllustrationBorder: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "#cbd5e1",
-    heroIllustrationShadow: isDarkMode ? "0 25px 50px -12px rgba(0, 0, 0, 0.6)" : "0 20px 40px -10px rgba(15, 23, 42, 0.12)",
+    heroIllustrationBorder: isDarkMode ? "rgba(255, 255, 255, 0.15)" : "#cbd5e1",
+    heroIllustrationShadow: isDarkMode ? "0 25px 50px -12px rgba(0, 0, 0, 0.9)" : "0 20px 40px -10px rgba(15, 23, 42, 0.12)",
     ambientGlow: isDarkMode
-      ? "radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(11, 15, 25, 0) 70%)"
+      ? "radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0) 70%)"
       : "radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(248, 250, 252, 0) 70%)",
   };
 

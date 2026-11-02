@@ -1,4 +1,4 @@
-import { Col, message, Row, Tag, Empty, Tabs } from "antd";
+import { Col, message, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllExams } from "../../../apicalls/exams";
@@ -22,24 +22,30 @@ function Home() {
 
   const loadData = async () => {
     try {
-      dispatch(ShowLoading());
-      const examsResponse = await getAllExams();
+      if (exams.length === 0) {
+        dispatch(ShowLoading());
+      }
+
+      // Parallel execution: Fetch exams and user reports concurrently
+      const [examsResponse, reportsResponse] = await Promise.all([
+        getAllExams(),
+        !isAdmin
+          ? getAllReportsByUser()
+          : Promise.resolve({ success: true, data: [] }),
+      ]);
+
       if (examsResponse.success) {
         setExams(examsResponse.data || []);
       } else {
         message.error(examsResponse.message);
       }
 
-      // Fetch user's completed submissions if regular user
-      if (!isAdmin) {
-        const reportsResponse = await getAllReportsByUser();
-        if (reportsResponse.success && reportsResponse.data) {
-          setUserReports(reportsResponse.data);
-          const attemptedSet = new Set(
-            reportsResponse.data.map((r) => r.exam?._id || r.exam)
-          );
-          setAttemptedExamIds(attemptedSet);
-        }
+      if (reportsResponse.success && reportsResponse.data) {
+        setUserReports(reportsResponse.data);
+        const attemptedSet = new Set(
+          reportsResponse.data.map((r) => r.exam?._id || r.exam)
+        );
+        setAttemptedExamIds(attemptedSet);
       }
 
       dispatch(HideLoading());
@@ -139,55 +145,19 @@ function Home() {
         {/* User Filter Tabs: Available vs Attempted History */}
         {!isAdmin && (
           <div style={{ marginBottom: 20 }}>
-            <div
-              style={{
-                display: "inline-flex",
-                backgroundColor: "#e2e8f0",
-                padding: "4px",
-                borderRadius: "12px",
-                gap: "4px",
-              }}
-            >
+            <div className="tab-pill-container">
               <button
                 type="button"
+                className={`tab-pill-btn ${activeTab === "available" ? "active" : ""}`}
                 onClick={() => setActiveTab("available")}
-                style={{
-                  border: "none",
-                  padding: "8px 18px",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  backgroundColor: activeTab === "available" ? "#ffffff" : "transparent",
-                  color: activeTab === "available" ? "#4f46e5" : "#64748b",
-                  boxShadow:
-                    activeTab === "available"
-                      ? "0 2px 8px rgba(0, 0, 0, 0.08)"
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
               >
                 Available Assessments ({availableExams.length})
               </button>
 
               <button
                 type="button"
+                className={`tab-pill-btn ${activeTab === "attempted" ? "active" : ""}`}
                 onClick={() => setActiveTab("attempted")}
-                style={{
-                  border: "none",
-                  padding: "8px 18px",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  backgroundColor: activeTab === "attempted" ? "#ffffff" : "transparent",
-                  color: activeTab === "attempted" ? "#4f46e5" : "#64748b",
-                  boxShadow:
-                    activeTab === "attempted"
-                      ? "0 2px 8px rgba(0, 0, 0, 0.08)"
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
               >
                 My Attempted History ({attemptedExams.length})
               </button>
@@ -330,7 +300,6 @@ function Home() {
                             style={{
                               fontSize: "17px",
                               fontWeight: "700",
-                              color: "#0f172a",
                               marginBottom: "14px",
                               minHeight: "44px",
                             }}
@@ -354,7 +323,7 @@ function Home() {
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b" }}>
                               <span>Questions / Marks:</span>
-                              <strong style={{ color: "#0f172a" }}>
+                              <strong>
                                 {exam.questions?.length || exam.totalMarks} Qs ({exam.totalMarks} pts)
                               </strong>
                             </div>
@@ -460,7 +429,6 @@ function Home() {
                           justifyContent: "space-between",
                           height: "100%",
                           border: isPassed ? "1.5px solid #86efac" : "1.5px solid #fca5a5",
-                          backgroundColor: "#ffffff",
                         }}
                       >
                         <div>
@@ -500,7 +468,6 @@ function Home() {
                             style={{
                               fontSize: "17px",
                               fontWeight: "700",
-                              color: "#0f172a",
                               marginBottom: "12px",
                               minHeight: "44px",
                             }}
