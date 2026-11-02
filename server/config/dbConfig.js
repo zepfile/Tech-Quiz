@@ -156,31 +156,45 @@ const seedMongoDbIfEmpty = async () => {
   }
 };
 
+let isConnected = false;
+
 const connectDatabase = async () => {
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   const mongoUrl = process.env.MONGO_URL;
 
   if (!mongoUrl || mongoUrl.includes("127.0.0.1") || mongoUrl.includes("localhost")) {
     console.warn(`[Database Notice] No external MongoDB Atlas URL configured in .env`);
     console.log("[Database] Active in-memory fallback enabled for zero-setup execution.");
-    console.log("[Database Note] To connect your live MongoDB Atlas, set MONGO_URL in .env");
-    return;
+    return null;
   }
 
   try {
-    await mongoose.connect(mongoUrl, {
+    const conn = await mongoose.connect(mongoUrl, {
       serverSelectionTimeoutMS: 5000,
     });
+    isConnected = true;
     console.log("=================================================");
     console.log(" [MongoDB Atlas] LIVE CLOUD DATABASE CONNECTED! ");
     console.log(" All data is now actively writing to MongoDB!   ");
     console.log("=================================================");
     await seedMongoDbIfEmpty();
+    return conn;
   } catch (err) {
+    isConnected = false;
     console.warn(`[Database Notice] Could not connect to MongoDB at "${mongoUrl}": ${err.message}`);
     console.log("[Database] Active in-memory fallback enabled for zero-setup execution.");
+    return null;
   }
 };
 
-connectDatabase();
+connectDatabase().catch((e) => {
+  console.warn("[Database Init Catch]:", e.message);
+});
 
-module.exports = mongoose.connection;
+module.exports = {
+  connection: mongoose.connection,
+  connectDatabase,
+};

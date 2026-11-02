@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
-const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
-const adminPassword = process.env.ADMIN_PASSWORD || "admin_initial_secret";
+const adminEmail = process.env.ADMIN_EMAIL || "admin@quiz.com";
+const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
 const defaultAdminPasswordHash = bcrypt.hashSync(adminPassword, 10);
 const defaultUserPasswordHash = bcrypt.hashSync("user123", 10);
