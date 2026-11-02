@@ -45,6 +45,9 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("techquiz_user");
+    sessionStorage.clear();
+    dispatch(SetUser(null));
     navigate("/login");
   };
 
@@ -153,10 +156,16 @@ function ProtectedRoute({ children, requireAdmin = false }) {
         }
       } else {
         localStorage.removeItem("token");
+        localStorage.removeItem("techquiz_user");
+        sessionStorage.clear();
+        dispatch(SetUser(null));
         navigate("/login");
       }
     } catch (error) {
       localStorage.removeItem("token");
+      localStorage.removeItem("techquiz_user");
+      sessionStorage.clear();
+      dispatch(SetUser(null));
       dispatch(HideLoading());
       navigate("/login");
     }

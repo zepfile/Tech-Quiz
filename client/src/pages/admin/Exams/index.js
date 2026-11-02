@@ -11,12 +11,14 @@ function Exams() {
   const navigate = useNavigate();
   const [exams, setExams] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
 
   const getExamsData = async () => {
     try {
-      dispatch(ShowLoading());
+      setTableLoading(true);
       const response = await getAllExams();
+      setTableLoading(false);
       dispatch(HideLoading());
       if (response.success) {
         setExams(response.data);
@@ -24,6 +26,7 @@ function Exams() {
         message.error(response.message);
       }
     } catch (error) {
+      setTableLoading(false);
       dispatch(HideLoading());
       message.error(error.message);
     }
@@ -285,6 +288,7 @@ function Exams() {
 
       {/* Table */}
       <Table
+        loading={tableLoading}
         columns={columns}
         dataSource={filteredExams}
         rowKey="_id"

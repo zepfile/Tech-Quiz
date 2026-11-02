@@ -3,7 +3,7 @@ import { Row, Col, Select, Table, Input, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../../../apicalls/reports";
-import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { HideLoading } from "../../../redux/loaderSlice";
 import PageTitle from "../../../components/PageTitle";
 import { CategoryBadgeIcon } from "../../../components/TechIcons";
 import moment from "moment";
@@ -16,14 +16,16 @@ function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [currentUserStanding, setCurrentUserStanding] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.users);
 
   const fetchLeaderboard = async (examId) => {
     try {
-      dispatch(ShowLoading());
+      setTableLoading(true);
       const response = await getLeaderboard({ examId });
+      setTableLoading(false);
       dispatch(HideLoading());
       if (response && response.success) {
         setLeaderboardData(response.data.leaderboard || []);
@@ -33,6 +35,7 @@ function Leaderboard() {
         setCurrentUserStanding(response.data.currentUserStanding || null);
       }
     } catch (error) {
+      setTableLoading(false);
       dispatch(HideLoading());
     }
   };
@@ -666,6 +669,7 @@ function Leaderboard() {
         </div>
 
         <Table
+          loading={tableLoading}
           columns={columns}
           dataSource={filteredData}
           rowKey={(record) => record.userId + (record.reportId || "")}

@@ -3,16 +3,29 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllExams } from "../../../apicalls/exams";
 import { getAllReportsByUser } from "../../../apicalls/reports";
-import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { HideLoading } from "../../../redux/loaderSlice";
 import { useNavigate } from "react-router-dom";
 import { CategoryBadgeIcon } from "../../../components/TechIcons";
 import PageTitle from "../../../components/PageTitle";
 import moment from "moment";
 
 function Home() {
-  const [exams, setExams] = useState([]);
-  const [userReports, setUserReports] = useState([]);
-  const [attemptedExamIds, setAttemptedExamIds] = useState(new Set());
+  const getCached = (key, fallback) => {
+    try {
+      const raw = sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
+
+  const [exams, setExams] = useState(() => getCached("tq_cached_exams", []));
+  const [userReports, setUserReports] = useState(() => getCached("tq_cached_reports", []));
+  const [attemptedExamIds, setAttemptedExamIds] = useState(() => {
+    const cachedRep = getCached("tq_cached_reports", []);
+    return new Set(cachedRep.map((r) => r.exam?._id || r.exam));
+  });
+  const [loadingData, setLoadingData] = useState(() => exams.length === 0);
   const [activeTab, setActiveTab] = useState("available");
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -22,10 +35,6 @@ function Home() {
 
   const loadData = async () => {
     try {
-      if (exams.length === 0) {
-        dispatch(ShowLoading());
-      }
-
       // Parallel execution: Fetch exams and user reports concurrently
       const [examsResponse, reportsResponse] = await Promise.all([
         getAllExams(),
@@ -34,10 +43,11 @@ function Home() {
           : Promise.resolve({ success: true, data: [] }),
       ]);
 
-      if (examsResponse.success) {
-        setExams(examsResponse.data || []);
-      } else {
-        message.error(examsResponse.message);
+      if (examsResponse.success && examsResponse.data) {
+        setExams(examsResponse.data);
+        try {
+          sessionStorage.setItem("tq_cached_exams", JSON.stringify(examsResponse.data));
+        } catch (e) {}
       }
 
       if (reportsResponse.success && reportsResponse.data) {
@@ -46,12 +56,16 @@ function Home() {
           reportsResponse.data.map((r) => r.exam?._id || r.exam)
         );
         setAttemptedExamIds(attemptedSet);
+        try {
+          sessionStorage.setItem("tq_cached_reports", JSON.stringify(reportsResponse.data));
+        } catch (e) {}
       }
 
+      setLoadingData(false);
       dispatch(HideLoading());
     } catch (error) {
+      setLoadingData(false);
       dispatch(HideLoading());
-      message.error(error.message);
     }
   };
 
@@ -168,7 +182,15 @@ function Home() {
         {/* ACTIVE TAB: AVAILABLE EXAMS */}
         {activeTab === "available" && (
           <>
-            {availableExams.length === 0 ? (
+            {loadingData && availableExams.length === 0 ? (
+              <Row gutter={[20, 20]}>
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <Col xs={24} sm={12} md={8} lg={8} key={n}>
+                    <div className="skeleton-card" />
+                  </Col>
+                ))}
+              </Row>
+            ) : availableExams.length === 0 ? (
               <div
                 className="card"
                 style={{

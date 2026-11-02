@@ -3,7 +3,7 @@ import PageTitle from "../../../components/PageTitle";
 import { message, Table } from "antd";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { HideLoading } from "../../../redux/loaderSlice";
 import { getAllReportsByUser } from "../../../apicalls/reports";
 import { CategoryBadgeIcon, TrophyIcon, TargetIcon } from "../../../components/TechIcons";
 import { EmptyDataIllustration } from "../../../components/SvgIllustrations";
@@ -14,20 +14,23 @@ import moment from "moment";
 function UserReports() {
   const [reportsData, setReportsData] = useState([]);
   const [selectedReportForCert, setSelectedReportForCert] = useState(null);
+  const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const getData = async () => {
     try {
-      dispatch(ShowLoading());
+      setTableLoading(true);
       const response = await getAllReportsByUser();
+      setTableLoading(false);
+      dispatch(HideLoading());
       if (response.success) {
         setReportsData(response.data);
       } else {
         message.error(response.message);
       }
-      dispatch(HideLoading());
     } catch (error) {
+      setTableLoading(false);
       dispatch(HideLoading());
       message.error(error.message);
     }
@@ -355,6 +358,7 @@ function UserReports() {
         </div>
       ) : (
         <Table
+          loading={tableLoading}
           columns={columns}
           dataSource={reportsData}
           rowKey={(record) => record._id || record.createdAt}

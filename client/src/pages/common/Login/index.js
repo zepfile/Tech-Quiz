@@ -1,15 +1,17 @@
 import { Form, message, Row, Col } from "antd";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../../apicalls/users";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { SetUser } from "../../../redux/usersSlice";
 import { BrandLogo } from "../../../components/TechIcons";
 import { AuthHeroIllustration } from "../../../components/SvgIllustrations";
 
 function Login() {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     try {
@@ -19,12 +21,15 @@ function Login() {
       if (response.success) {
         message.success(response.message);
         localStorage.setItem("token", response.data);
+        if (response.user) {
+          dispatch(SetUser(response.user));
+        }
 
-        // Auto-route based on account role: Admins to Admin Console, Candidates to Assessment Home
+        // Instant Single Page Navigation (No page reload)
         if (response.isAdmin) {
-          window.location.href = "/admin/exams";
+          navigate("/admin/exams");
         } else {
-          window.location.href = "/";
+          navigate("/");
         }
       } else {
         message.error(response.message);

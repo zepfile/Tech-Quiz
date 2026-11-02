@@ -109,6 +109,13 @@ router.post("/login", async (req, res) => {
       success: true,
       data: token,
       isAdmin: Boolean(user.isAdmin),
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: Boolean(user.isAdmin),
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
     res.status(500).send({

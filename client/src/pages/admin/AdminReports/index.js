@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import PageTitle from "../../../components/PageTitle";
 import { message, Table, Input } from "antd";
 import { useDispatch } from "react-redux";
-import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
+import { HideLoading } from "../../../redux/loaderSlice";
 import { getAllReports } from "../../../apicalls/reports";
 import { CategoryBadgeIcon, TrophyIcon, TargetIcon } from "../../../components/TechIcons";
 import { EmptyDataIllustration } from "../../../components/SvgIllustrations";
@@ -13,6 +13,7 @@ import moment from "moment";
 function AdminReports() {
   const [reportsData, setReportsData] = useState([]);
   const [selectedReportForCert, setSelectedReportForCert] = useState(null);
+  const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     examName: "",
@@ -21,15 +22,17 @@ function AdminReports() {
 
   const getData = async (tempFilters) => {
     try {
-      dispatch(ShowLoading());
+      setTableLoading(true);
       const response = await getAllReports(tempFilters);
+      setTableLoading(false);
+      dispatch(HideLoading());
       if (response.success) {
         setReportsData(response.data);
       } else {
         message.error(response.message);
       }
-      dispatch(HideLoading());
     } catch (error) {
+      setTableLoading(false);
       dispatch(HideLoading());
       message.error(error.message);
     }
@@ -440,6 +443,7 @@ function AdminReports() {
         </div>
       ) : (
         <Table
+          loading={tableLoading}
           columns={columns}
           dataSource={reportsData}
           rowKey={(record) => record._id || record.createdAt}

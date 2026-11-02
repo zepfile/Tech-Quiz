@@ -2,15 +2,18 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const dns = require("dns");
 
-if (!process.env.VERCEL) {
-  try {
-    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-  } catch (e) {
-    // ignore
-  }
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1", "8.8.4.4"]);
+} catch (e) {
+  // ignore
 }
 
 const seedMongoDbIfEmpty = async () => {
+  // In serverless production environments (Vercel), Atlas is already permanently populated.
+  // Never run heavy bcrypt hashing or document counts on cold starts.
+  if (process.env.VERCEL) {
+    return;
+  }
   try {
     const User = require("../models/userModel");
     const Exam = require("../models/examModel");
