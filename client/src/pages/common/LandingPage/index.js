@@ -178,22 +178,30 @@ function LandingPage() {
         backgroundColor: theme.bg,
         color: theme.textPrimary,
         minHeight: "100vh",
+        paddingTop: "76px",
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         overflowX: "hidden",
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
-      {/* 1. STICKY MODERN NAVBAR */}
+      {/* 1. FIXED MODERN NAVBAR */}
       <nav
         style={{
-          position: "sticky",
+          position: "fixed",
           top: 0,
-          zIndex: 100,
+          left: 0,
+          right: 0,
+          width: "100%",
+          zIndex: 1000,
           backgroundColor: theme.navBg,
-          backdropFilter: "blur(12px)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid ${theme.navBorder}`,
-          padding: "16px 32px",
+          padding: "14px 32px",
           transition: "background-color 0.3s ease, border-color 0.3s ease",
+          boxShadow: isDarkMode
+            ? "0 4px 25px rgba(0, 0, 0, 0.8)"
+            : "0 2px 10px rgba(15, 23, 42, 0.05)",
         }}
       >
         <div
