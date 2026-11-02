@@ -1,6 +1,6 @@
 import React from "react";
 
-// Modern Hero Banner Illustration for Home Page
+// Modern Hero Banner Illustration for Home Page (Clean Skill Progress & Analytics)
 export function HeroDashboardIllustration({ className = "", width = "100%", height = 210 }) {
   return (
     <svg
@@ -13,19 +13,27 @@ export function HeroDashboardIllustration({ className = "", width = "100%", heig
     >
       <defs>
         <linearGradient id="heroCardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.04" />
         </linearGradient>
-        <linearGradient id="heroCardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4338ca" />
-          <stop offset="100%" stopColor="#312e81" />
+        <linearGradient id="chartBarGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="100%" stopColor="#0284c7" />
+        </linearGradient>
+        <linearGradient id="chartBarGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#a855f7" />
+          <stop offset="100%" stopColor="#7e22ce" />
+        </linearGradient>
+        <linearGradient id="chartBarGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="100%" stopColor="#059669" />
         </linearGradient>
         <linearGradient id="glowCircle" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#818cf8" stopOpacity="0.6" />
           <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
         </linearGradient>
         <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000000" floodOpacity="0.2" />
+          <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000000" floodOpacity="0.25" />
         </filter>
       </defs>
 
@@ -37,39 +45,49 @@ export function HeroDashboardIllustration({ className = "", width = "100%", heig
       <g filter="url(#cardShadow)">
         <rect x="70" y="24" width="320" height="162" rx="16" fill="url(#heroCardGrad1)" stroke="#ffffff" strokeOpacity="0.3" strokeWidth="1.5" />
         {/* Window Header */}
-        <rect x="70" y="24" width="320" height="34" rx="16" fill="#0f172a" fillOpacity="0.4" />
+        <rect x="70" y="24" width="320" height="34" rx="16" fill="#0f172a" fillOpacity="0.5" />
         <circle cx="92" cy="41" r="4.5" fill="#ef4444" />
         <circle cx="106" cy="41" r="4.5" fill="#f59e0b" />
         <circle cx="120" cy="41" r="4.5" fill="#10b981" />
         <rect x="145" y="34" width="170" height="14" rx="7" fill="#ffffff" fillOpacity="0.15" />
+
+        {/* Developer Skill Progress Chart Bars */}
+        <g transform="translate(100, 75)">
+          <text x="0" y="0" fill="#ffffff" fontSize="12" fontWeight="700">Skill Proficiency Benchmark</text>
+          
+          {/* Bar 1 - JavaScript */}
+          <rect x="0" y="16" width="220" height="8" rx="4" fill="#ffffff" fillOpacity="0.1" />
+          <rect x="0" y="16" width="195" height="8" rx="4" fill="url(#chartBarGrad1)" />
+          <text x="228" y="24" fill="#38bdf8" fontSize="11" fontWeight="700">92%</text>
+
+          {/* Bar 2 - React.js */}
+          <rect x="0" y="36" width="220" height="8" rx="4" fill="#ffffff" fillOpacity="0.1" />
+          <rect x="0" y="36" width="180" height="8" rx="4" fill="url(#chartBarGrad2)" />
+          <text x="228" y="44" fill="#c084fc" fontSize="11" fontWeight="700">85%</text>
+
+          {/* Bar 3 - Node & Express */}
+          <rect x="0" y="56" width="220" height="8" rx="4" fill="#ffffff" fillOpacity="0.1" />
+          <rect x="0" y="56" width="210" height="8" rx="4" fill="url(#chartBarGrad3)" />
+          <text x="228" y="64" fill="#4ade80" fontSize="11" fontWeight="700">96%</text>
+        </g>
       </g>
 
-      {/* Inner Quiz Card 1: Question Header */}
-      <rect x="94" y="72" width="180" height="14" rx="4" fill="#ffffff" fillOpacity="0.85" />
-      <rect x="94" y="94" width="220" height="8" rx="4" fill="#ffffff" fillOpacity="0.4" />
-
-      {/* Question Option Badges */}
-      <rect x="94" y="112" width="120" height="28" rx="8" fill="#1e1b4b" fillOpacity="0.6" stroke="#818cf8" strokeWidth="1" />
-      <text x="108" y="130" fill="#a5b4fc" fontSize="11" fontWeight="bold">A. React Hooks</text>
-
-      <rect x="224" y="112" width="120" height="28" rx="8" fill="#10b981" fillOpacity="0.25" stroke="#34d399" strokeWidth="1.2" />
-      <text x="238" y="130" fill="#ecfdf5" fontSize="11" fontWeight="bold">✓ B. Virtual DOM</text>
-
-      {/* Floating Pill: Live Timer */}
+      {/* Floating Pill: Verified Student Badge */}
       <g filter="url(#cardShadow)">
-        <rect x="30" y="70" width="110" height="42" rx="21" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-        <circle cx="50" cy="91" r="10" fill="#0284c7" />
-        <path d="M50 86V91L53 93" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-        <text x="68" y="96" fill="#38bdf8" fontSize="12" fontWeight="800" fontFamily="monospace">02:45</text>
+        <rect x="30" y="125" width="130" height="44" rx="22" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+        <circle cx="52" cy="147" r="12" fill="#059669" />
+        <path d="M47 147L50 150L57 143" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <text x="70" y="144" fill="#6ee7b7" fontSize="10" fontWeight="bold">STATUS</text>
+        <text x="70" y="157" fill="#ffffff" fontSize="12" fontWeight="700">Certified</text>
       </g>
 
-      {/* Floating Pill: Score & Trophy */}
+      {/* Floating Pill: Score & Accuracy */}
       <g filter="url(#cardShadow)">
-        <rect x="320" y="125" width="120" height="48" rx="14" fill="#1e1b4b" stroke="#facc15" strokeWidth="1.5" />
-        <circle cx="344" cy="149" r="12" fill="#eab308" />
-        <path d="M340 144H348V149C348 152 346 154 344 154C342 154 340 152 340 149V144Z" fill="#ffffff" />
-        <text x="364" y="145" fill="#fef08a" fontSize="10" fontWeight="bold">SCORE</text>
-        <text x="364" y="160" fill="#ffffff" fontSize="13" fontWeight="800">100%</text>
+        <rect x="315" y="125" width="125" height="44" rx="14" fill="#1e1b4b" stroke="#facc15" strokeWidth="1.5" />
+        <circle cx="338" cy="147" r="12" fill="#eab308" />
+        <path d="M334 142H342V147C342 150 340 152 338 152C336 152 334 150 334 147V142Z" fill="#ffffff" />
+        <text x="356" y="143" fill="#fef08a" fontSize="10" fontWeight="bold">PERFORMANCE</text>
+        <text x="356" y="157" fill="#ffffff" fontSize="13" fontWeight="800">Top 5%</text>
       </g>
 
       {/* Code Floating Chips */}
@@ -77,9 +95,9 @@ export function HeroDashboardIllustration({ className = "", width = "100%", heig
         <rect width="64" height="28" rx="14" fill="#38bdf8" fillOpacity="0.2" stroke="#38bdf8" strokeWidth="1" />
         <text x="12" y="18" fill="#38bdf8" fontSize="11" fontWeight="bold">&lt;JS /&gt;</text>
       </g>
-      <g transform="translate(18, 140)">
-        <rect width="64" height="28" rx="14" fill="#a855f7" fillOpacity="0.2" stroke="#c084fc" strokeWidth="1" />
-        <text x="14" y="18" fill="#e9d5ff" fontSize="11" fontWeight="bold">&#123; MERN &#125;</text>
+      <g transform="translate(18, 50)">
+        <rect width="68" height="28" rx="14" fill="#a855f7" fillOpacity="0.2" stroke="#c084fc" strokeWidth="1" />
+        <text x="12" y="18" fill="#e9d5ff" fontSize="11" fontWeight="bold">&#123; MERN &#125;</text>
       </g>
     </svg>
   );
