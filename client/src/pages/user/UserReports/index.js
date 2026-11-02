@@ -7,6 +7,7 @@ import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { getAllReportsByUser } from "../../../apicalls/reports";
 import { CategoryBadgeIcon, TrophyIcon, TargetIcon } from "../../../components/TechIcons";
 import { EmptyDataIllustration } from "../../../components/SvgIllustrations";
+import { downloadCSV, escapeCSV } from "../../../utils/csvHelper";
 import moment from "moment";
 
 function UserReports() {
@@ -41,6 +42,49 @@ function UserReports() {
   const failedAttempts = totalAttempts - passedAttempts;
   const passRate =
     totalAttempts > 0 ? Math.round((passedAttempts / totalAttempts) * 100) : 0;
+
+  const handleExportCSV = () => {
+    if (!reportsData || !reportsData.length) {
+      message.warning("No records available to export.");
+      return;
+    }
+
+    const headers = [
+      "Exam Name",
+      "Category",
+      "Attempt Date & Time",
+      "Score Obtained",
+      "Total Marks",
+      "Accuracy (%)",
+      "Passing Marks",
+      "Verdict",
+    ];
+
+    const rows = reportsData.map((r) => {
+      const correct = r.result?.correctAnswers?.length || 0;
+      const total = r.exam?.totalMarks || 1;
+      const pct = Math.round((correct / total) * 100);
+      return [
+        r.exam?.name || "N/A",
+        r.exam?.category || "General",
+        moment(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+        correct,
+        total,
+        `${pct}%`,
+        r.exam?.passingMarks || 0,
+        r.result?.verdict?.toUpperCase() || "N/A",
+      ];
+    });
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...rows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\r\n");
+
+    const dateStr = moment().format("YYYY-MM-DD");
+    downloadCSV(`TechQuiz_My_Assessment_History_${dateStr}.csv`, csvContent);
+    message.success(`Exported ${reportsData.length} records to CSV!`);
+  };
 
   const columns = [
     {
@@ -122,12 +166,23 @@ function UserReports() {
           </p>
         </div>
 
-        <button
-          className="primary-outlined-btn"
-          onClick={() => navigate("/")}
-        >
-          <i className="ri-compass-line"></i> Browse Quizzes
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            className="primary-outlined-btn"
+            style={{ borderColor: "#10b981", color: "#059669", background: "#f0fdf4" }}
+            onClick={handleExportCSV}
+            title="Export your attempts to CSV"
+          >
+            <i className="ri-file-excel-2-line"></i> Export My Records (CSV)
+          </button>
+
+          <button
+            className="primary-outlined-btn"
+            onClick={() => navigate("/")}
+          >
+            <i className="ri-compass-line"></i> Browse Quizzes
+          </button>
+        </div>
       </div>
 
       {/* KPI Performance Strip with Custom SVGs */}

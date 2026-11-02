@@ -11,6 +11,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import AddEditQuestion from "./AddEditQuestion";
+import BulkImportQuestionsModal from "./BulkImportQuestionsModal";
+import { downloadCSV, escapeCSV } from "../../../utils/csvHelper";
 
 const { TabPane } = Tabs;
 
@@ -19,6 +21,7 @@ function AddEditExam() {
   const navigate = useNavigate();
   const [examData, setExamData] = useState(null);
   const [showAddEditQuestionModal, setShowAddEditQuestionModal] = useState(false);
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
   const params = useParams();
@@ -91,6 +94,31 @@ function AddEditExam() {
       dispatch(HideLoading());
       message.error(error.message);
     }
+  };
+
+  const handleExportQuestions = () => {
+    if (!examData?.questions || !examData.questions.length) {
+      message.warning("No questions available to export.");
+      return;
+    }
+    const headers = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Option"];
+    const rows = examData.questions.map((q) => [
+      q.name,
+      q.options?.A || "",
+      q.options?.B || "",
+      q.options?.C || "",
+      q.options?.D || "",
+      q.correctOption || "",
+    ]);
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...rows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\r\n");
+
+    const safeName = (examData.name || "Exam").replace(/[^a-zA-Z0-9_-]/g, "_");
+    downloadCSV(`${safeName}_Questions.csv`, csvContent);
+    message.success(`Exported ${examData.questions.length} questions to CSV!`);
   };
 
   const questionsColumns = [
@@ -200,12 +228,11 @@ function AddEditExam() {
                 padding: "0 8px",
                 fontSize: 13,
                 borderRadius: 6,
-                background: "#fef2f2",
-                color: "#dc2626",
+                background: "transparent",
                 border: "1px solid #fecaca",
+                color: "#dc2626",
                 cursor: "pointer",
               }}
-              title="Delete question"
             >
               <i className="ri-delete-bin-line"></i>
             </button>
@@ -217,86 +244,82 @@ function AddEditExam() {
 
   return (
     <div>
-      {/* Top Breadcrumb / Navigation */}
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex justify-between items-center mb-3">
+        <div>
+          <PageTitle title={params.id ? "Edit Technical Exam" : "Add New Exam Track"} />
+          <p className="text-sm text-muted mt-1">
+            {params.id
+              ? `Manage parameters and questions for ${examData?.name || "Exam"}`
+              : "Configure assessment duration, category, and evaluation metrics"}
+          </p>
+        </div>
+
         <button
+          className="primary-outlined-btn"
           type="button"
           onClick={() => navigate("/admin/exams")}
-          className="primary-outlined-btn"
-          style={{ height: 36, padding: "0 12px", fontSize: 13, borderRadius: 8 }}
         >
           <i className="ri-arrow-left-line"></i> Back to Exams
         </button>
-        <div>
-          <PageTitle title={params.id ? "Edit Exam Configuration" : "Create New Exam"} />
-        </div>
       </div>
+
       <div className="divider"></div>
 
-      <div className="card p-4">
+      <div className="mt-2">
         {(examData || !params.id) && (
           <Form
             layout="vertical"
             onFinish={onFinish}
-            initialValues={
-              examData || {
-                duration: 180,
-                category: "JavaScript",
-                totalMarks: 5,
-                passingMarks: 3,
-              }
-            }
+            initialValues={examData}
+            className="w-full"
           >
-            <Tabs activeKey={activeTab} onChange={setActiveTab}>
+            <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={setActiveTab}>
               <TabPane
                 tab={
                   <span className="flex items-center gap-1 font-semibold">
-                    <i className="ri-settings-4-line"></i> Exam Details & Rules
+                    <i className="ri-settings-4-line"></i> Exam Parameters
                   </span>
                 }
                 key="1"
               >
-                <div style={{ maxWidth: 860, marginTop: 12 }}>
-                  <Row gutter={[16, 8]}>
+                <div className="card p-4">
+                  <Row gutter={[24, 16]}>
                     <Col span={24} md={12}>
                       <Form.Item
-                        label="Exam Title"
+                        label="Exam / Assessment Title"
                         name="name"
                         rules={[{ required: true, message: "Exam name is required" }]}
                       >
-                        <input
-                          type="text"
-                          placeholder="e.g. Modern Full-Stack JavaScript Assessment"
-                        />
+                        <input type="text" placeholder="e.g. Node.js & Express Intermediate Exam" />
                       </Form.Item>
                     </Col>
 
-                    <Col span={24} md={12}>
+                    <Col span={24} md={6}>
                       <Form.Item
-                        label="Category / Topic"
+                        label="Duration (Seconds)"
+                        name="duration"
+                        rules={[{ required: true, message: "Duration is required" }]}
+                        help="300 sec = 5 min, 600 sec = 10 min"
+                      >
+                        <input type="number" min={10} placeholder="e.g. 300" />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24} md={6}>
+                      <Form.Item
+                        label="Category / Tech Stack"
                         name="category"
                         rules={[{ required: true, message: "Category is required" }]}
                       >
                         <select>
+                          <option value="">Select Category</option>
                           <option value="JavaScript">JavaScript</option>
                           <option value="React">React.js</option>
                           <option value="Node">Node.js</option>
                           <option value="MongoDB">MongoDB</option>
-                          <option value="Full-Stack">Full-Stack MERN</option>
-                          <option value="General Knowledge">General Knowledge</option>
-                          <option value="Computer Science">Computer Science</option>
+                          <option value="FullStack">FullStack MERN</option>
+                          <option value="General">General Tech</option>
                         </select>
-                      </Form.Item>
-                    </Col>
-
-                    <Col span={24} md={8}>
-                      <Form.Item
-                        label="Duration (in seconds)"
-                        name="duration"
-                        rules={[{ required: true, message: "Duration is required" }]}
-                        help="e.g. 180s = 3 minutes, 300s = 5 minutes"
-                      >
-                        <input type="number" min={10} />
                       </Form.Item>
                     </Col>
 
@@ -356,16 +379,39 @@ function AddEditExam() {
                       </p>
                     </div>
 
-                    <button
-                      className="primary-contained-btn"
-                      type="button"
-                      onClick={() => {
-                        setSelectedQuestion(null);
-                        setShowAddEditQuestionModal(true);
-                      }}
-                    >
-                      <i className="ri-add-line"></i> Add Question
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        className="primary-outlined-btn"
+                        type="button"
+                        style={{ height: 38, padding: "0 14px", borderRadius: 8, fontSize: 13 }}
+                        onClick={handleExportQuestions}
+                        title="Export current questions as CSV"
+                      >
+                        <i className="ri-download-2-line"></i> Export Questions (CSV)
+                      </button>
+
+                      <button
+                        className="primary-outlined-btn"
+                        type="button"
+                        style={{ height: 38, padding: "0 14px", borderRadius: 8, fontSize: 13, borderColor: "#4f46e5", color: "#4f46e5" }}
+                        onClick={() => setShowBulkImportModal(true)}
+                        title="Bulk upload questions via CSV / Excel"
+                      >
+                        <i className="ri-file-upload-line"></i> Import CSV / Excel
+                      </button>
+
+                      <button
+                        className="primary-contained-btn"
+                        type="button"
+                        style={{ height: 38, padding: "0 16px", borderRadius: 8, fontSize: 13 }}
+                        onClick={() => {
+                          setSelectedQuestion(null);
+                          setShowAddEditQuestionModal(true);
+                        }}
+                      >
+                        <i className="ri-add-line"></i> Add Question
+                      </button>
+                    </div>
                   </div>
 
                   <Table
@@ -389,6 +435,16 @@ function AddEditExam() {
           refreshData={getExamData}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
+        />
+      )}
+
+      {showBulkImportModal && (
+        <BulkImportQuestionsModal
+          visible={showBulkImportModal}
+          onCancel={() => setShowBulkImportModal(false)}
+          examId={params.id}
+          examName={examData?.name || "Exam"}
+          refreshData={getExamData}
         />
       )}
     </div>

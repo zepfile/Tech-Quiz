@@ -300,4 +300,101 @@ router.post("/delete-question-in-exam", authMiddleware, async (req, res) => {
   }
 });
 
+// bulk add questions to exam (from CSV / Excel import)
+router.post("/bulk-add-questions-to-exam", authMiddleware, async (req, res) => {
+  try {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const { examId, questions } = req.body;
+
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(200).send({
+        message: "No questions provided for bulk import",
+        success: false,
+      });
+    }
+
+    if (isMongoConnected) {
+      const exam = await Exam.findById(examId);
+      if (!exam) {
+        return res.status(404).send({
+          message: "Target exam not found",
+          success: false,
+        });
+      }
+
+      const questionsToInsert = questions.map((q) => ({
+        name: q.name,
+        correctOption: q.correctOption.toUpperCase().trim(),
+        options: {
+          A: q.options?.A || "",
+          B: q.options?.B || "",
+          C: q.options?.C || "",
+          D: q.options?.D || "",
+        },
+        exam: examId,
+      }));
+
+      const createdQuestions = await Question.insertMany(questionsToInsert);
+      const questionIds = createdQuestions.map((q) => q._id);
+
+      exam.questions.push(...questionIds);
+      if (exam.totalMarks < exam.questions.length) {
+        exam.totalMarks = exam.questions.length;
+      }
+      await exam.save();
+
+      return res.send({
+        message: `Successfully imported ${createdQuestions.length} questions into "${exam.name}"!`,
+        success: true,
+        count: createdQuestions.length,
+      });
+    }
+
+    // In-memory fallback
+    const exam = memoryStore.exams.find((e) => e._id === examId);
+    if (!exam) {
+      return res.status(404).send({
+        message: "Target exam not found",
+        success: false,
+      });
+    }
+
+    let addedCount = 0;
+    questions.forEach((q, idx) => {
+      const newQ = {
+        _id: "q_bulk_" + Date.now() + "_" + idx,
+        name: q.name,
+        correctOption: q.correctOption.toUpperCase().trim(),
+        options: {
+          A: q.options?.A || "",
+          B: q.options?.B || "",
+          C: q.options?.C || "",
+          D: q.options?.D || "",
+        },
+        exam: examId,
+        createdAt: new Date(),
+      };
+      memoryStore.questions.push(newQ);
+      exam.questions.push(newQ._id);
+      addedCount++;
+    });
+
+    if (exam.totalMarks < exam.questions.length) {
+      exam.totalMarks = exam.questions.length;
+    }
+
+    res.send({
+      message: `Successfully imported ${addedCount} questions into "${exam.name}"!`,
+      success: true,
+      count: addedCount,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: error,
+      success: false,
+    });
+  }
+});
+
 module.exports = router;

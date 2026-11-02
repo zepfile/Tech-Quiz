@@ -6,6 +6,7 @@ import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import { getAllReports } from "../../../apicalls/reports";
 import { CategoryBadgeIcon, TrophyIcon, TargetIcon } from "../../../components/TechIcons";
 import { EmptyDataIllustration } from "../../../components/SvgIllustrations";
+import { downloadCSV, escapeCSV } from "../../../utils/csvHelper";
 import moment from "moment";
 
 function AdminReports() {
@@ -43,6 +44,53 @@ function AdminReports() {
   const failedReports = totalReports - passedReports;
   const overallPassRate =
     totalReports > 0 ? Math.round((passedReports / totalReports) * 100) : 0;
+
+  const handleExportCSV = () => {
+    if (!reportsData || !reportsData.length) {
+      message.warning("No submissions available to export.");
+      return;
+    }
+
+    const headers = [
+      "Candidate Name",
+      "Candidate Email",
+      "Exam Name",
+      "Category",
+      "Submission Date",
+      "Marks Obtained",
+      "Total Marks",
+      "Accuracy (%)",
+      "Passing Marks",
+      "Verdict",
+    ];
+
+    const rows = reportsData.map((r) => {
+      const correct = r.result?.correctAnswers?.length || 0;
+      const total = r.exam?.totalMarks || 1;
+      const pct = Math.round((correct / total) * 100);
+      return [
+        r.user?.name || "N/A",
+        r.user?.email || "N/A",
+        r.exam?.name || "N/A",
+        r.exam?.category || "General",
+        moment(r.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+        correct,
+        total,
+        `${pct}%`,
+        r.exam?.passingMarks || 0,
+        r.result?.verdict?.toUpperCase() || "N/A",
+      ];
+    });
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...rows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\r\n");
+
+    const dateStr = moment().format("YYYY-MM-DD");
+    downloadCSV(`TechQuiz_Admin_Submissions_${dateStr}.csv`, csvContent);
+    message.success(`Exported ${reportsData.length} submissions to CSV!`);
+  };
 
   const columns = [
     {
@@ -310,6 +358,23 @@ function AdminReports() {
             onClick={() => getData(filters)}
           >
             <i className="ri-search-line"></i> Filter Submissions
+          </button>
+
+          <button
+            type="button"
+            className="primary-outlined-btn"
+            style={{
+              height: 42,
+              padding: "0 18px",
+              borderRadius: 10,
+              borderColor: "#10b981",
+              color: "#059669",
+              background: "#f0fdf4",
+            }}
+            onClick={handleExportCSV}
+            title="Export all visible submissions as CSV"
+          >
+            <i className="ri-file-excel-2-line"></i> Export to CSV
           </button>
         </div>
       </div>

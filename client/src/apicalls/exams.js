@@ -1,7 +1,6 @@
 const { default: axiosInstance } = require(".");
 
 // add exam
-
 export const addExam = async (payload) => {
   try {
     const response = await axiosInstance.post("/api/exams/add", payload);
@@ -22,7 +21,6 @@ export const getAllExams = async () => {
 };
 
 // get exam by id
-
 export const getExamById = async (payload) => {
   try {
     const response = await axiosInstance.post(
@@ -36,7 +34,6 @@ export const getExamById = async (payload) => {
 };
 
 // edit exam by id
-
 export const editExamById = async (payload) => {
   try {
     const response = await axiosInstance.post(
@@ -50,7 +47,6 @@ export const editExamById = async (payload) => {
 };
 
 // delete exam by id
-
 export const deleteExamById = async (payload) => {
   try {
     const response = await axiosInstance.post(
@@ -64,7 +60,6 @@ export const deleteExamById = async (payload) => {
 };
 
 // add question to exam
-
 export const addQuestionToExam = async (payload) => {
   try {
     const response = await axiosInstance.post(
@@ -99,4 +94,16 @@ export const deleteQuestionById = async (payload) => {
   } catch (error) {
     return error.response.data;
   }
-}
+};
+
+export const bulkAddQuestionsToExam = async (payload) => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/exams/bulk-add-questions-to-exam",
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
