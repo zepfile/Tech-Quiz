@@ -1,0 +1,44 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tqBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="45%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="tqInnerPlate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="tqAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+    <linearGradient id="tqSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="40%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#FB923C" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Squircle -->
+  <rect x="3" y="3" width="58" height="58" rx="16" fill="url(#tqBaseGrad)" />
+
+  <!-- Inner Plate -->
+  <rect x="6" y="6" width="52" height="52" rx="13" fill="url(#tqInnerPlate)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1" />
+
+  <!-- The 'Q' (Quiz Circle / Orbital Ring) -->
+  <circle cx="32" cy="31" r="14" stroke="url(#tqAccentGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="72 16" />
+
+  <!-- The 'T' (Tech Crossbar & Central Stem) -->
+  <path d="M23 23H41" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+  <path d="M32 23V37" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Side Terminal Code Glyphs < > -->
+  <path d="M14 28L11 31L14 34" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M50 28L53 31L50 34" stroke="#C084FC" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Electric Lightning Spark Bolt completing the 'Q' -->
+  <path d="M39 35L34 44H41L37 53L49 38H43L46 35H39Z" fill="url(#tqSparkGrad)" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round" />
+</svg>
+

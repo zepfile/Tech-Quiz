@@ -55,8 +55,8 @@ function AdminReports() {
     }
 
     const headers = [
-      "Candidate Name",
-      "Candidate Email",
+      "User Name",
+      "User Email",
       "Exam Name",
       "Category",
       "Submission Date",
@@ -100,10 +100,10 @@ function AdminReports() {
 
   const columns = [
     {
-      title: "Candidate",
+      title: "User",
       dataIndex: "userName",
       render: (text, record) => {
-        const userName = record.user?.name || "Candidate";
+        const userName = record.user?.name || "User";
         const userEmail = record.user?.email || "";
         const initial = userName.charAt(0).toUpperCase();
         return (
@@ -245,9 +245,9 @@ function AdminReports() {
     <div>
       <div className="flex justify-between items-center mt-2 flex-wrap gap-2">
         <div>
-          <PageTitle title="Candidate Submission Reports" />
+          <PageTitle title="User Submission Reports" />
           <p className="text-sm text-muted mt-1">
-            Global audit log of candidate quiz attempts, scores, and evaluations
+            Global audit log of user quiz attempts, scores, and evaluations
           </p>
         </div>
       </div>

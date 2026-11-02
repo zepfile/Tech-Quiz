@@ -26,6 +26,18 @@ const examSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    isTimeBound: {
+      type: Boolean,
+      default: false,
+    },
+    startTime: {
+      type: Date,
+      default: null,
+    },
+    endTime: {
+      type: Date,
+      default: null,
+    },
     questions: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "questions",

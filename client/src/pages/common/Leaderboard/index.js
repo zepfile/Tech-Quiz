@@ -135,7 +135,7 @@ function Leaderboard() {
       },
     },
     {
-      title: "Candidate",
+      title: "User",
       dataIndex: "userName",
       render: (text, record) => {
         const isCurrentUser = user && record.userId === user._id;
@@ -300,7 +300,7 @@ function Leaderboard() {
         <div>
           <PageTitle title="Competitive Leaderboard & Ranks" />
           <p className="text-sm text-muted" style={{ marginTop: 4 }}>
-            Explore top performers, track proficiencies, and candidate rankings
+            Explore top performers, track proficiencies, and user rankings
           </p>
         </div>
 
@@ -312,10 +312,10 @@ function Leaderboard() {
             style={{ width: 260 }}
             size="middle"
           >
-            <Option value="all">🌐 Global Standings (All Exams)</Option>
+            <Option value="all">🌐 Global Standings (All Tracks)</Option>
             {allExams.map((ex) => (
               <Option key={ex._id} value={ex._id}>
-                {ex.name} ({ex.category || "General"})
+                {ex.isTimeBound ? "🔴 LIVE: " : ""}{ex.name} ({ex.category || "General"})
               </Option>
             ))}
           </Select>
@@ -370,7 +370,7 @@ function Leaderboard() {
                 Your Performance Standing
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2 }}>
-                Rank #{currentUserStanding.rank} of {leaderboardData.length} Candidates
+                Rank #{currentUserStanding.rank} of {leaderboardData.length} Users
               </div>
               <div style={{ fontSize: 13, color: "#e0e7ff", marginTop: 2 }}>
                 {isGlobalView ? (
@@ -656,7 +656,7 @@ function Leaderboard() {
 
           <div style={{ width: 260 }}>
             <Input
-              placeholder="Search candidate name or email..."
+              placeholder="Search user name or email..."
               prefix={<i className="ri-search-line" style={{ color: "#94a3b8" }} />}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

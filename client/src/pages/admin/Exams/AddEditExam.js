@@ -1,5 +1,6 @@
-import { Col, Form, message, Row, Table, Tabs, Popconfirm, Tag, Space } from "antd";
+import { Col, Form, message, Row, Table, Tabs, Popconfirm, Tag, Space, Switch } from "antd";
 import React, { useEffect, useState } from "react";
+import moment from "moment";
 import {
   addExam,
   deleteQuestionById,
@@ -26,6 +27,7 @@ function AddEditExam() {
   const [activeTab, setActiveTab] = useState("1");
   const params = useParams();
   const [form] = Form.useForm();
+  const [isTimeBoundState, setIsTimeBoundState] = useState(false);
 
   const onFinish = async (values) => {
     try {
@@ -80,7 +82,16 @@ function AddEditExam() {
 
   useEffect(() => {
     if (examData) {
-      form.setFieldsValue(examData);
+      setIsTimeBoundState(Boolean(examData.isTimeBound));
+      form.setFieldsValue({
+        ...examData,
+        startTime: examData.startTime
+          ? moment(examData.startTime).format("YYYY-MM-DDTHH:mm")
+          : "",
+        endTime: examData.endTime
+          ? moment(examData.endTime).format("YYYY-MM-DDTHH:mm")
+          : "",
+      });
     }
   }, [examData, form]);
 
@@ -450,6 +461,99 @@ function AddEditExam() {
                           <option value={1}>-1.00 Mark (Full deduction)</option>
                         </select>
                       </Form.Item>
+                    </Col>
+
+                    {/* Time-Bound Scheduled Live Competition Configuration */}
+                    <Col span={24}>
+                      <div
+                        style={{
+                          backgroundColor: "#f8fafc",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "12px",
+                          padding: "16px 20px",
+                          marginTop: "6px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: 12,
+                          }}
+                        >
+                          <div>
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                fontSize: "14px",
+                                color: "#0f172a",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <i
+                                className="ri-calendar-event-line"
+                                style={{ color: "#4f46e5", fontSize: 18 }}
+                              ></i>
+                              Schedule Live Competition (Fixed Time Window)
+                            </div>
+                            <p style={{ fontSize: "12px", color: "#64748b", margin: "4px 0 0 0" }}>
+                              If enabled, users can only start this quiz inside this time window. Once live, strict proctoring and live leaderboard apply.
+                            </p>
+                          </div>
+
+                          <Form.Item
+                            name="isTimeBound"
+                            valuePropName="checked"
+                            style={{ marginBottom: 0 }}
+                          >
+                            <Switch
+                              checkedChildren="Live Scheduled"
+                              unCheckedChildren="Standard (Always On)"
+                              onChange={(checked) => setIsTimeBoundState(checked)}
+                            />
+                          </Form.Item>
+                        </div>
+
+                        {isTimeBoundState && (
+                          <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
+                            <Col span={24} md={12}>
+                              <Form.Item
+                                label="Live Competition Start Time"
+                                name="startTime"
+                                rules={[
+                                  {
+                                    required: isTimeBoundState,
+                                    message: "Start time required for scheduled live quiz",
+                                  },
+                                ]}
+                                help="Quiz becomes active and visible for candidates at this exact time"
+                              >
+                                <input type="datetime-local" />
+                              </Form.Item>
+                            </Col>
+
+                            <Col span={24} md={12}>
+                              <Form.Item
+                                label="Live Competition End Time"
+                                name="endTime"
+                                rules={[
+                                  {
+                                    required: isTimeBoundState,
+                                    message: "End time required for scheduled live quiz",
+                                  },
+                                ]}
+                                help="Window closes after this time; no new attempts allowed"
+                              >
+                                <input type="datetime-local" />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        )}
+                      </div>
                     </Col>
                   </Row>
 

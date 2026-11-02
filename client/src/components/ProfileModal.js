@@ -207,7 +207,7 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
                   letterSpacing: "0.05em",
                 }}
               >
-                {isAdmin ? "Admin Console" : "Candidate Portal"}
+                {isAdmin ? "Admin Console" : "User Portal"}
               </span>
             </div>
 
@@ -339,7 +339,7 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
                     borderRadius: 20,
                   }}
                 >
-                  {isAdmin ? "Administrator" : "Candidate / Student"}
+                  {isAdmin ? "Admin" : "User"}
                 </span>
               </div>
 

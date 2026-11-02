@@ -188,7 +188,7 @@ function Profile() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {isAdmin ? "Admin Console" : "Candidate Portal"}
+                    {isAdmin ? "Admin Console" : "User Portal"}
                   </span>
                 </div>
 
@@ -383,7 +383,7 @@ function Profile() {
                         borderRadius: 20,
                       }}
                     >
-                      {isAdmin ? "Administrator" : "Candidate / Student"}
+                      {isAdmin ? "Admin" : "User"}
                     </span>
                   </div>
 

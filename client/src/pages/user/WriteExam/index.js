@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getExamById } from "../../../apicalls/exams";
-import { addReport } from "../../../apicalls/reports";
+import { addReport, getAllReportsByUser } from "../../../apicalls/reports";
 import { HideLoading, ShowLoading } from "../../../redux/loaderSlice";
 import Instructions from "./Instructions";
 import { CategoryBadgeIcon, TimerClockSvg } from "../../../components/TechIcons";
@@ -38,14 +38,53 @@ function WriteExam() {
   const getExamData = async () => {
     try {
       dispatch(ShowLoading());
+
+      // One Attempt Rule: prevent users from re-attempting a completed exam
+      if (!user?.isAdmin) {
+        const reportsRes = await getAllReportsByUser();
+        if (reportsRes.success && reportsRes.data) {
+          const alreadyDone = reportsRes.data.find(
+            (r) => (r.exam?._id || r.exam) === params.id
+          );
+          if (alreadyDone) {
+            dispatch(HideLoading());
+            message.warning("You have already completed this assessment. Re-attempts are not permitted.");
+            navigate("/user/reports");
+            return;
+          }
+        }
+      }
+
       const response = await getExamById({
         examId: params.id,
       });
       dispatch(HideLoading());
       if (response.success) {
-        setQuestions(response.data.questions);
-        setExamData(response.data);
-        setSecondsLeft(response.data.duration);
+        const exam = response.data;
+
+        // Scheduled Live Quiz Window Check
+        if (exam.isTimeBound && !user?.isAdmin) {
+          const now = new Date();
+          const start = exam.startTime ? new Date(exam.startTime) : null;
+          const end = exam.endTime ? new Date(exam.endTime) : null;
+
+          if (start && now < start) {
+            message.info(
+              `This live competition has not started yet. Opens on ${new Date(start).toLocaleString()}`
+            );
+            navigate("/");
+            return;
+          }
+          if (end && now > end) {
+            message.error("This live competition has already ended.");
+            navigate("/");
+            return;
+          }
+        }
+
+        setQuestions(exam.questions);
+        setExamData(exam);
+        setSecondsLeft(exam.duration);
       } else {
         message.error(response.message);
       }
