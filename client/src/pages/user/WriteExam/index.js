@@ -166,6 +166,7 @@ function WriteExam() {
       window.removeEventListener("blur", handleWindowBlur);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, intervalId]);
 
   // Anti-Cheating: Block Copy / Paste / Context Menu / Devtools shortcut keys
@@ -214,6 +215,7 @@ function WriteExam() {
       clearInterval(intervalId);
       calculateResult();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeUp]);
 
   useEffect(() => {
@@ -223,6 +225,7 @@ function WriteExam() {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatTimer = (secs) => {

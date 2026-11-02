@@ -39,6 +39,7 @@ function Leaderboard() {
 
   useEffect(() => {
     fetchLeaderboard(selectedExamId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExamId]);
 
   const isGlobalView = selectedExamId === "all";

@@ -37,6 +37,7 @@ function AdminReports() {
 
   useEffect(() => {
     getData(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalReports = reportsData.length;

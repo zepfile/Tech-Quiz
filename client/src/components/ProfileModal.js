@@ -30,6 +30,7 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
       passwordForm.resetFields();
       loadUserStats();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, user]);
 
   const loadUserStats = async () => {

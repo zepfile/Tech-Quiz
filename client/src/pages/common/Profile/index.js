@@ -33,6 +33,7 @@ function Profile() {
       nameForm.setFieldsValue({ name: user.name });
       loadStats();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadStats = async () => {

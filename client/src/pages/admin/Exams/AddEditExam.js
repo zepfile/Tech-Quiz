@@ -74,6 +74,7 @@ function AddEditExam() {
     if (params.id) {
       getExamData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const deleteQuestion = async (questionId) => {

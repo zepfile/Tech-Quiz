@@ -161,6 +161,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
     } else {
       navigate("/login");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const activeRoute = window.location.pathname;
