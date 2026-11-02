@@ -1,77 +1,123 @@
+/* ========================================================
+   MODERN FULL-HEIGHT SAAS LAYOUT & ADAPTIVE DAY/NIGHT THEME
+   ======================================================== */
+
 .layout {
-  padding: 16px;
+  display: flex;
   width: 100vw;
   height: 100vh;
-  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
+/* Light / Day Theme Layout */
+.layout.theme-light {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Dark / Night Theme Layout */
+.layout.theme-dark {
+  background-color: #0b0f19;
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------
+   TRUE FULL-HEIGHT ANCHORED SIDEBAR
+   -------------------------------------------------------- */
 .sidebar {
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  padding: 16px 12px;
-  border-radius: 16px;
-  height: calc(100vh - 32px);
+  height: 100vh;
+  padding: 20px 14px;
+  border-radius: 0; /* Anchored flush to the screen edge like a true sidebar */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
   z-index: 50;
 }
 
-.sidebar.hover-active {
-  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+/* Light / Day Theme Sidebar */
+.sidebar.theme-light {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: 2px 0 10px rgba(15, 23, 42, 0.03);
+}
+
+/* Dark / Night Theme Sidebar */
+.sidebar.theme-dark {
+  background-color: #0f172a !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar.collapsed {
-  padding: 16px 8px;
+  padding: 20px 10px;
 }
 
+/* Navigation Menu */
 .sidebar .menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
+  margin-top: 10px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  gap: 14px;
-  color: #94a3b8 !important;
+  gap: 12px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13.5px;
   white-space: nowrap;
+  user-select: none;
 }
 
-.sidebar.collapsed .menu-item {
-  justify-content: center;
-  padding: 12px 0;
-  gap: 0;
+/* Light Theme Menu Item */
+.sidebar.theme-light .menu-item {
+  color: #475569 !important;
 }
 
-.menu-item i {
-  font-size: 19px;
-  flex-shrink: 0;
+.sidebar.theme-light .menu-item:hover {
+  background-color: #f1f5f9;
+  color: #0f172a !important;
 }
 
-.menu-item:hover {
+/* Dark Theme Menu Item */
+.sidebar.theme-dark .menu-item {
+  color: #94a3b8 !important;
+}
+
+.sidebar.theme-dark .menu-item:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: #f8fafc !important;
 }
 
+.sidebar.collapsed .menu-item {
+  justify-content: center;
+  padding: 11px 0;
+  gap: 0;
+}
+
+.menu-item i {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Active Menu Item (Vibrant Indigo Gradient across both themes) */
 .active-menu-item {
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
   font-weight: 600;
 }
 
@@ -79,68 +125,164 @@
   color: #ffffff !important;
 }
 
-.sidebar-user-footer:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.user-header-profile {
-  transition: all 0.2s ease-in-out;
+/* --------------------------------------------------------
+   SIDEBAR CONTROLS: THEME TOGGLE & USER FOOTER
+   -------------------------------------------------------- */
+.sidebar-theme-btn {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   user-select: none;
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
-.user-header-profile:hover {
+.sidebar.theme-light .sidebar-theme-btn {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.sidebar.theme-light .sidebar-theme-btn:hover {
   background-color: #f1f5f9;
+  color: #0f172a;
 }
 
+.sidebar.theme-dark .sidebar-theme-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.sidebar.theme-dark .sidebar-theme-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.sidebar-user-footer {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar.theme-light .sidebar-user-footer {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.sidebar.theme-light .sidebar-user-footer:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.sidebar.theme-dark .sidebar-user-footer {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar.theme-dark .sidebar-user-footer:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --------------------------------------------------------
+   BODY & CONTENT WORKSPACE
+   -------------------------------------------------------- */
 .body {
-  width: 100%;
-  height: calc(100vh - 32px);
+  flex: 1;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 16px;
   transition: all 0.28s ease;
 }
 
+.content {
+  border-radius: 16px;
+  padding: 24px 28px;
+  height: 100%;
+  overflow-y: auto;
+  width: 100%;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Theme Content */
+.content.theme-light {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+}
+
+/* Dark Theme Content */
+.content.theme-dark {
+  background-color: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: #f8fafc;
+}
+
+.content > div {
+  width: 100%;
+}
+
+/* --------------------------------------------------------
+   THEME ADAPTATION FOR CARDS, HEADINGS & TABLES
+   -------------------------------------------------------- */
+.layout.theme-dark h1,
+.layout.theme-dark h2,
+.layout.theme-dark h3,
+.layout.theme-dark h4,
+.layout.theme-dark h5,
+.layout.theme-dark h6 {
+  color: #f8fafc !important;
+}
+
+.layout.theme-dark .card,
+.layout.theme-dark .card-lg {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+.layout.theme-dark .divider {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.layout.theme-dark .ant-table {
+  background-color: transparent !important;
+  color: #e2e8f0 !important;
+}
+
+.layout.theme-dark .ant-table-thead > tr > th {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.layout.theme-dark .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #e2e8f0 !important;
+}
+
+.layout.theme-dark .ant-table-tbody > tr:hover > td {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Proctored Header (shown only during exam execution) */
 .header {
   background: #ffffff;
   color: #0f172a !important;
   width: 100% !important;
-  padding: 14px 24px;
-  border-radius: 16px;
+  padding: 12px 20px;
+  border-radius: 12px;
   display: flex;
   align-items: center !important;
   justify-content: space-between;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-}
-
-.header i {
-  cursor: pointer;
-  font-size: 20px;
-  padding: 6px;
-  border-radius: 8px;
-  color: #64748b;
-  transition: all 0.2s;
-}
-
-.header i:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-
-.content {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  height: 100%;
-  overflow-y: auto;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  width: 100%;
-}
-
-.content > div {
-  width: 100%;
+  margin-bottom: 14px;
 }

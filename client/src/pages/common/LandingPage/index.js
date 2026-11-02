@@ -10,13 +10,16 @@ function LandingPage() {
 
   // Day & Night mode state with localStorage persistence
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem("techquiz_landing_theme");
-    return saved ? saved === "dark" : true; // Default is modern dark
+    const saved =
+      localStorage.getItem("techquiz_theme") ||
+      localStorage.getItem("techquiz_landing_theme");
+    return saved ? saved === "dark" : false; // Clean Day mode default
   });
 
   const toggleTheme = () => {
     const next = !isDarkMode;
     setIsDarkMode(next);
+    localStorage.setItem("techquiz_theme", next ? "dark" : "light");
     localStorage.setItem("techquiz_landing_theme", next ? "dark" : "light");
   };
 
