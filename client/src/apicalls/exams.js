@@ -20,6 +20,16 @@ export const getAllExams = async () => {
   }
 };
 
+// get public catalog directly from database (for landing page)
+export const getPublicCatalog = async () => {
+  try {
+    const response = await axiosInstance.get("/api/exams/public-catalog");
+    return response.data;
+  } catch (error) {
+    return error.response ? error.response.data : { success: false, message: error.message };
+  }
+};
+
 // get exam by id
 export const getExamById = async (payload) => {
   try {

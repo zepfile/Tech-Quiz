@@ -1,12 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
 import { BrandLogoWithText, CategoryBadgeIcon } from "../../../components/TechIcons";
 import { HeroDashboardIllustration } from "../../../components/SvgIllustrations";
+import { getPublicCatalog } from "../../../apicalls/exams";
 
 function LandingPage() {
   const navigate = useNavigate();
   const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+  // Real Database Exams & Stats
+  const [dbExams, setDbExams] = useState([]);
+  const [dbStats, setDbStats] = useState({
+    totalExams: 0,
+    totalQuestions: 0,
+    categoriesCount: 0,
+  });
+  const [loadingExams, setLoadingExams] = useState(true);
+
+  useEffect(() => {
+    const loadCatalog = async () => {
+      try {
+        const res = await getPublicCatalog();
+        if (res && res.success && res.data) {
+          setDbExams(res.data);
+          if (res.stats) {
+            setDbStats(res.stats);
+          }
+        }
+      } catch (e) {
+        // silent
+      } finally {
+        setLoadingExams(false);
+      }
+    };
+    loadCatalog();
+  }, []);
 
   // Day & Night mode state with localStorage persistence
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -63,51 +92,6 @@ function LandingPage() {
       ? "radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0) 70%)"
       : "radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(248, 250, 252, 0) 70%)",
   };
-
-  const featuredTracks = [
-    {
-      name: "React.js Ecosystem",
-      category: "React.js",
-      desc: "Hooks, Virtual DOM, Redux, Performance Profiling & Component Architecture",
-      questions: "25+ MCQs",
-      time: "20 Mins",
-    },
-    {
-      name: "Node.js & Express",
-      category: "NodeJS",
-      desc: "Event Loop, Async I/O, REST APIs, Middleware Pipelines & JWT Security",
-      questions: "20+ MCQs",
-      time: "15 Mins",
-    },
-    {
-      name: "JavaScript Core (ES6+)",
-      category: "JavaScript",
-      desc: "Closures, Prototypes, Event Delegation, Promises, Microtasks & Scope",
-      questions: "30+ MCQs",
-      time: "25 Mins",
-    },
-    {
-      name: "MongoDB & Data Modeling",
-      category: "MongoDB",
-      desc: "Document Schemas, Aggregation Pipelines, Indexing Strategies & Mongoose",
-      questions: "15+ MCQs",
-      time: "15 Mins",
-    },
-    {
-      name: "Full-Stack MERN",
-      category: "Full Stack",
-      desc: "End-to-End Architectural Integration, CRUD Ops, State Sync & Deployment",
-      questions: "35+ MCQs",
-      time: "30 Mins",
-    },
-    {
-      name: "Python Core Engineering",
-      category: "Python",
-      desc: "Data Structures, OOP, Generators, Comprehensions & Standard Library",
-      questions: "20+ MCQs",
-      time: "15 Mins",
-    },
-  ];
 
   const features = [
     {
@@ -489,10 +473,10 @@ function LandingPage() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <Row gutter={[24, 24]} justify="center">
             {[
-              { num: "50+ Curated", label: "Technical Assessment Modules" },
-              { num: "100% Proctored", label: "Anti-Cheating Verification" },
-              { num: "0.00s Instant", label: "Score & PDF Certificate Generation" },
-              { num: "4.9 / 5.0", label: "Candidate Satisfaction Score" },
+              { num: `${dbStats.totalExams || dbExams.length} Live Tracks`, label: "Verified Database Assessments" },
+              { num: `${dbStats.totalQuestions || 30}+ MCQs`, label: "Engineered Concept Challenges" },
+              { num: "100% Proctored", label: "Anti-Cheating Lockdown Safeguards" },
+              { num: "Instant Verifiable", label: "Official Pass Certificates" },
             ].map((metric, i) => (
               <Col xs={12} sm={6} key={i} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 900, color: theme.textPrimary }}>
@@ -507,96 +491,139 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* 4. FEATURED ASSESSMENT TRACKS */}
+      {/* 4. FEATURED ASSESSMENT TRACKS (100% Real from Database) */}
       <section id="tracks" style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 50 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            READY-TO-EVALUATE MODULES
+            DATABASE-SYNCED EVALUATIONS
           </span>
           <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: 800, color: theme.textPrimary, marginTop: 8 }}>
             Curated Assessment Tracks
           </h2>
           <p style={{ color: theme.textSecondary, fontSize: 15, maxWidth: 600, margin: "8px auto 0 auto" }}>
-            Explore standardized technical evaluations across contemporary web engineering domains.
+            Live technical evaluations loaded directly from MongoDB database cluster.
           </p>
         </div>
 
         <Row gutter={[24, 24]}>
-          {featuredTracks.map((track, idx) => (
-            <Col xs={24} sm={12} lg={8} key={idx}>
-              <div
-                className="card"
-                style={{
-                  backgroundColor: theme.cardBg,
-                  border: `1px solid ${theme.cardBorder}`,
-                  borderRadius: 18,
-                  padding: "24px",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  transition: "transform 0.2s ease, border-color 0.2s ease, background-color 0.3s ease",
-                  boxShadow: isDarkMode ? "none" : "0 4px 16px rgba(15, 23, 42, 0.05)",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                    <CategoryBadgeIcon category={track.category} size={42} />
-                    <span
-                      style={{
-                        backgroundColor: isDarkMode ? "rgba(99, 102, 241, 0.2)" : "#e0e7ff",
-                        color: isDarkMode ? "#a5b4fc" : "#4338ca",
-                        border: `1px solid ${isDarkMode ? "rgba(99, 102, 241, 0.3)" : "#c7d2fe"}`,
-                        padding: "3px 10px",
-                        borderRadius: 20,
-                        fontSize: 11,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {track.time}
-                    </span>
-                  </div>
-
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>
-                    {track.name}
-                  </h3>
-                  <p style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.5, marginBottom: 18 }}>
-                    {track.desc}
-                  </p>
-                </div>
-
+          {loadingExams && dbExams.length === 0 ? (
+            [1, 2, 3].map((n) => (
+              <Col xs={24} sm={12} lg={8} key={n}>
+                <div className="skeleton-card" style={{ height: 260 }} />
+              </Col>
+            ))
+          ) : dbExams.length === 0 ? (
+            <Col xs={24} style={{ textAlign: "center", padding: "40px" }}>
+              <p style={{ color: theme.textSecondary }}>No assessments currently in database.</p>
+            </Col>
+          ) : (
+            dbExams.map((exam) => (
+              <Col xs={24} sm={12} lg={8} key={exam._id}>
                 <div
+                  className="card"
                   style={{
+                    backgroundColor: theme.cardBg,
+                    border: `1px solid ${theme.cardBorder}`,
+                    borderRadius: 18,
+                    padding: "24px",
+                    height: "100%",
                     display: "flex",
+                    flexDirection: "column",
                     justifyContent: "space-between",
-                    alignItems: "center",
-                    borderTop: `1px solid ${theme.cardBorder}`,
-                    paddingTop: 16,
+                    transition: "transform 0.2s ease, border-color 0.2s ease, background-color 0.3s ease",
+                    boxShadow: isDarkMode ? "none" : "0 4px 16px rgba(15, 23, 42, 0.05)",
                   }}
                 >
-                  <span style={{ fontSize: 12, color: theme.textSecondary, fontWeight: 600 }}>
-                    {track.questions}
-                  </span>
-                  <button
-                    type="button"
-                    className="primary-outlined-btn"
-                    onClick={() => navigate(isLoggedIn ? "/" : "/login")}
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <CategoryBadgeIcon category={exam.category} size={38} />
+                        <div>
+                          <span
+                            style={{
+                              backgroundColor: isDarkMode ? "rgba(99, 102, 241, 0.2)" : "#e0e7ff",
+                              color: isDarkMode ? "#a5b4fc" : "#4338ca",
+                              border: `1px solid ${isDarkMode ? "rgba(99, 102, 241, 0.3)" : "#c7d2fe"}`,
+                              padding: "2px 8px",
+                              borderRadius: 6,
+                              fontSize: 11,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {exam.category || "General"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span
+                        style={{
+                          fontSize: 11.5,
+                          fontWeight: 600,
+                          color: theme.textSecondary,
+                          background: isDarkMode ? "#121215" : "#f1f5f9",
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                        }}
+                      >
+                        <i className="ri-time-line"></i> {Math.round(exam.duration / 60)} min
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: 17, fontWeight: 700, color: theme.textPrimary, marginBottom: 8, minHeight: 44 }}>
+                      {exam.name}
+                    </h3>
+
+                    {/* DB Spec Tag */}
+                    <div
+                      style={{
+                        fontSize: 12.5,
+                        color: theme.textSecondary,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <div>
+                        Pass Marks: <strong style={{ color: "#16a34a" }}>{exam.passingMarks} / {exam.totalMarks} pts</strong>
+                      </div>
+                      <div>
+                        Questions: <strong>{exam.questions?.length || exam.totalMarks} MCQs</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
                     style={{
-                      height: 32,
-                      padding: "0 14px",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      borderColor: "#0284c7",
-                      color: isDarkMode ? "#38bdf8" : "#0284c7",
-                      backgroundColor: isDarkMode ? "transparent" : "#f0f9ff",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      borderTop: `1px solid ${theme.cardBorder}`,
+                      paddingTop: 16,
                     }}
                   >
-                    Start Track
-                  </button>
+                    <span style={{ fontSize: 12, color: theme.textSecondary, fontWeight: 600 }}>
+                      {exam.isTimeBound ? "⚡ Scheduled Live" : "Always Available"}
+                    </span>
+                    <button
+                      type="button"
+                      className="primary-contained-btn"
+                      onClick={() => navigate(isLoggedIn ? `/user/write-exam/${exam._id}` : "/login")}
+                      style={{
+                        height: 32,
+                        padding: "0 14px",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Take Assessment →
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </Col>
-          ))}
+              </Col>
+            ))
+          )}
         </Row>
       </section>
 

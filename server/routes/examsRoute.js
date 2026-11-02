@@ -87,6 +87,44 @@ router.post("/get-all-exams", authMiddleware, async (req, res) => {
   }
 });
 
+// public catalog for landing page & visitors (Directly from MongoDB, No Auth Token required)
+const handlePublicCatalog = async (req, res) => {
+  try {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+
+    let exams = [];
+    if (isMongoConnected) {
+      exams = await Exam.find({})
+        .select("name category duration totalMarks passingMarks isTimeBound startTime endTime questions")
+        .sort({ createdAt: -1 });
+    } else {
+      exams = memoryStore.exams;
+    }
+
+    const totalQuestions = exams.reduce((acc, curr) => acc + (curr.questions?.length || 0), 0);
+    const uniqueCategories = [...new Set(exams.map((e) => e.category).filter(Boolean))];
+
+    return res.send({
+      message: "Public catalog fetched from database successfully",
+      success: true,
+      data: exams,
+      stats: {
+        totalExams: exams.length,
+        totalQuestions,
+        categoriesCount: uniqueCategories.length,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message,
+      data: error,
+      success: false,
+    });
+  }
+};
+router.get("/public-catalog", handlePublicCatalog);
+router.post("/public-catalog", handlePublicCatalog);
+
 // get exam by id (with populated questions)
 router.post("/get-exam-by-id", authMiddleware, async (req, res) => {
   try {
