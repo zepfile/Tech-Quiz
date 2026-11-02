@@ -16,8 +16,15 @@
   justify-content: flex-start;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
   position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.sidebar.hover-active {
+  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
 }
 
 .sidebar.collapsed {
@@ -92,6 +99,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.28s ease;
 }
 
 .header {

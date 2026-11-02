@@ -33,9 +33,13 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(port, () => {
-  console.log(`===============================================`);
-  console.log(` Quiz Application Server listening on port ${port}`);
-  console.log(` Health Check: http://localhost:${port}/api/health`);
-  console.log(`===============================================`);
-});
+module.exports = app;
+
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`===============================================`);
+    console.log(` Quiz Application Server listening on port ${port}`);
+    console.log(` Health Check: http://localhost:${port}/api/health`);
+    console.log(`===============================================`);
+  });
+}

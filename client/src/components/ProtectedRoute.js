@@ -11,10 +11,32 @@ import ProfileModal from "./ProfileModal";
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { user } = useSelector((state) => state.users);
   const [menu, setMenu] = useState([]);
-  const [collapsed, setCollapsed] = useState(false);
+  
+  // Sidebar states:
+  // isPinned: whether user locked it open permanently (persisted in localStorage)
+  // isHovered: true when mouse arrow enters the sidebar
+  const [isPinned, setIsPinned] = useState(() => {
+    const saved = localStorage.getItem("techquiz_sidebar_pinned");
+    return saved !== null ? saved === "true" : true;
+  });
+  const [isHovered, setIsHovered] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Sidebar is open if either pinned OR mouse arrow is hovering over it!
+  const isExpanded = isPinned || isHovered;
+
+  const togglePin = () => {
+    const nextPin = !isPinned;
+    setIsPinned(nextPin);
+    localStorage.setItem("techquiz_sidebar_pinned", String(nextPin));
+    if (nextPin) {
+      message.info("Sidebar locked open");
+    } else {
+      message.info("Auto-expand on hover enabled! Move mouse arrow away to collapse.");
+    }
+  };
 
   const isAdmin = Boolean(user?.isAdmin);
 
@@ -154,11 +176,13 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   return (
     <div className="layout">
       <div className="flex gap-2 w-full h-full">
-        {/* Sidebar */}
+        {/* Hover-to-expand Sidebar */}
         <div
-          className={`sidebar ${collapsed ? "collapsed" : ""}`}
+          className={`sidebar ${!isExpanded ? "collapsed" : ""} ${isHovered && !isPinned ? "hover-active" : ""}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
-            width: collapsed ? "76px" : "240px",
+            width: isExpanded ? "240px" : "76px",
             background: isAdmin
               ? "linear-gradient(180deg, #130f26 0%, #0f172a 100%)"
               : "#0f172a",
@@ -167,12 +191,12 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           {/* Brand header */}
           <div
             className="flex items-center gap-3 mb-4 px-2 py-3 border-b border-slate-700/60 cursor-pointer"
-            style={{ justifyContent: collapsed ? "center" : "flex-start" }}
+            style={{ justifyContent: isExpanded ? "flex-start" : "center" }}
             onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
             title="TechQuiz Home"
           >
             <BrandLogo size={36} />
-            {!collapsed && (
+            {isExpanded && (
               <div className="flex flex-col">
                 <span className="font-extrabold text-white text-base tracking-tight leading-tight">
                   TechQuiz<span style={{ color: isAdmin ? "#c084fc" : "#38bdf8" }}>{isAdmin ? ".admin" : ".io"}</span>
@@ -201,10 +225,10 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                   }`}
                   key={index}
                   onClick={item.onClick}
-                  title={collapsed ? item.title : ""}
+                  title={!isExpanded ? item.title : ""}
                 >
                   {item.icon}
-                  {!collapsed && <span>{item.title}</span>}
+                  {isExpanded && <span>{item.title}</span>}
                 </div>
               );
             })}
@@ -218,14 +242,14 @@ function ProtectedRoute({ children, requireAdmin = false }) {
               title="Click to view full profile & settings"
               style={{
                 marginTop: "auto",
-                padding: collapsed ? "10px 0" : "12px",
+                padding: isExpanded ? "12px" : "10px 0",
                 borderRadius: "12px",
                 background: "rgba(255, 255, 255, 0.05)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: collapsed ? "center" : "flex-start",
+                justifyContent: isExpanded ? "flex-start" : "center",
                 gap: "10px",
                 transition: "all 0.2s ease-in-out",
               }}
@@ -247,7 +271,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
               >
                 {user?.name ? user.name[0].toUpperCase() : "U"}
               </div>
-              {!collapsed && (
+              {isExpanded && (
                 <div style={{ overflow: "hidden", flex: 1 }}>
                   <div
                     style={{
@@ -283,7 +307,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                   </div>
                 </div>
               )}
-              {!collapsed && (
+              {isExpanded && (
                 <i
                   className="ri-arrow-right-s-line"
                   style={{ color: "#94a3b8", fontSize: 18 }}
@@ -299,9 +323,17 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           <div className="header">
             <div className="flex items-center gap-3">
               <i
-                className={collapsed ? "ri-menu-unfold-line" : "ri-menu-fold-line"}
-                onClick={() => setCollapsed(!collapsed)}
-                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className={isPinned ? "ri-menu-fold-line" : "ri-menu-unfold-line"}
+                onClick={togglePin}
+                title={
+                  isPinned
+                    ? "Sidebar is locked open. Click to enable auto-expand on hover."
+                    : "Auto-expand on hover is active! Click to pin sidebar open."
+                }
+                style={{
+                  backgroundColor: !isPinned ? "#e0e7ff" : "transparent",
+                  color: !isPinned ? "#4f46e5" : "#64748b",
+                }}
               ></i>
               <span className="text-lg font-bold text-slate-800">
                 {isAdmin
