@@ -96,7 +96,7 @@ router.post("/login", async (req, res) => {
         .send({ message: "Invalid password", success: false });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, JWT_SECRET, {
       expiresIn: "1d",
     });
 
@@ -104,6 +104,7 @@ router.post("/login", async (req, res) => {
       message: "User logged in successfully",
       success: true,
       data: token,
+      isAdmin: Boolean(user.isAdmin),
     });
   } catch (error) {
     res.status(500).send({

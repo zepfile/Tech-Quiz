@@ -1,11 +1,10 @@
-import { Button } from "antd";
 import "./stylesheets/theme.css";
 import "./stylesheets/alignments.css";
 import "./stylesheets/textelements.css";
 import "./stylesheets/custom-components.css";
 import "./stylesheets/form-elements.css";
 import "./stylesheets/layout.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/common/Login";
 import Register from "./pages/common/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -25,11 +24,12 @@ function App() {
       {loading && <Loader />}
       <BrowserRouter>
         <Routes>
-          {/* Common Routes */}
-          <Route path="/login" element={<Login />} />
+          {/* Public Authentication Portals */}
+          <Route path="/login" element={<Login defaultRole="candidate" />} />
+          <Route path="/admin/login" element={<Login defaultRole="admin" />} />
           <Route path="/register" element={<Register />} />
 
-          {/* User Routes */}
+          {/* User / Candidate Dedicated Routes */}
           <Route
             path="/"
             element={
@@ -54,11 +54,12 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Admin Routes */}
+
+          {/* Administrator Dedicated Routes (Protected by requireAdmin) */}
           <Route
             path="/admin/exams"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <Exams />
               </ProtectedRoute>
             }
@@ -66,29 +67,30 @@ function App() {
           <Route
             path="/admin/exams/add"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <AddEditExam />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin/exams/edit/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <AddEditExam />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin/reports"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <AdminReports />
               </ProtectedRoute>
             }
           />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </>
