@@ -83,10 +83,13 @@ function CertificateModal({ visible, onCancel, report }) {
       {/* Certificate Sheet (Printable Canvas) */}
       <div
         style={{
-          padding: "24px",
+          padding: "16px 10px",
           backgroundColor: "#0f172a",
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "flex-start",
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
+          borderRadius: "8px",
         }}
       >
         <div

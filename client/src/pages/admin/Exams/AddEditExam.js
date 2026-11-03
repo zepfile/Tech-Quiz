@@ -630,6 +630,7 @@ function AddEditExam() {
                     dataSource={examData?.questions || []}
                     rowKey="_id"
                     pagination={{ pageSize: 5 }}
+                    scroll={{ x: 700 }}
                   />
                 </TabPane>
               )}

@@ -119,6 +119,7 @@ function ProfileModal({ visible, onCancel, user, onLogout }) {
       onCancel={onCancel}
       footer={null}
       width={600}
+      style={{ maxWidth: "94vw" }}
       centered
       destroyOnClose
       bodyStyle={{ padding: 0, borderRadius: 20, overflow: "hidden" }}

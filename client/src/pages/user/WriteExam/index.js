@@ -205,7 +205,15 @@ function WriteExam() {
       handleViolation("Window lost focus / clicked outside examination");
     };
 
+    const isFullscreenSupported = Boolean(
+      document.fullscreenEnabled ||
+      document.webkitFullscreenEnabled ||
+      document.mozFullScreenEnabled ||
+      document.msFullscreenEnabled
+    );
+
     const handleFullscreenChange = () => {
+      if (!isFullscreenSupported) return;
       const isFull = Boolean(
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
@@ -454,20 +462,22 @@ function WriteExam() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                padding: "16px 20px",
+                flexWrap: "wrap",
+                gap: "10px",
+                padding: "12px 16px",
                 borderRadius: "16px",
                 backgroundColor: "#ffffff",
                 border: "1px solid #e2e8f0",
                 boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <CategoryBadgeIcon category={examData.category} size={36} />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CategoryBadgeIcon category={examData.category} size={32} />
                 <div>
                   <span className="badge badge-primary" style={{ marginBottom: "2px", fontSize: "10px" }}>
                     {examData.category || "Exam Track"}
                   </span>
-                  <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", margin: 0 }}>
+                  <h2 style={{ fontSize: "15px", fontWeight: "700", color: "#0f172a", margin: 0 }}>
                     {examData.name}
                   </h2>
                 </div>
@@ -491,12 +501,14 @@ function WriteExam() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "6px",
                 overflowX: "auto",
-                paddingBottom: "4px",
+                WebkitOverflowScrolling: "touch",
+                paddingBottom: "6px",
+                scrollbarWidth: "none",
               }}
             >
-              <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginRight: "6px" }}>
+              <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", marginRight: "4px", flexShrink: 0 }}>
                 Questions:
               </span>
               {questions.map((_, idx) => {
@@ -508,12 +520,16 @@ function WriteExam() {
                     type="button"
                     onClick={() => setSelectedQuestionIndex(idx)}
                     style={{
-                      width: "34px",
-                      height: "34px",
+                      minWidth: "36px",
+                      width: "36px",
+                      height: "36px",
                       padding: 0,
                       borderRadius: "8px",
-                      fontSize: "12px",
+                      fontSize: "12.5px",
                       fontWeight: "700",
+                      flexShrink: 0,
+                      cursor: "pointer",
+                      WebkitTapHighlightColor: "transparent",
                       backgroundColor: isSelected
                         ? "#4f46e5"
                         : isAnswered
@@ -541,7 +557,7 @@ function WriteExam() {
             <div
               className="card-lg"
               style={{
-                padding: "28px",
+                padding: "clamp(16px, 4vw, 28px)",
                 borderRadius: "18px",
                 backgroundColor: "#ffffff",
               }}
@@ -555,12 +571,12 @@ function WriteExam() {
                 </span>
               </div>
 
-              <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", marginBottom: "24px", lineHeight: "1.5" }}>
+              <h2 style={{ fontSize: "17px", fontWeight: "700", color: "#0f172a", marginBottom: "20px", lineHeight: "1.5" }}>
                 {currentQuestion.name}
               </h2>
 
-              {/* 4 Options List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* 4 Options List (Finger-Friendly Touch Targets) */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {Object.keys(currentQuestion.options).map((optionKey) => {
                   const isChecked = selectedOptions[selectedQuestionIndex] === optionKey;
                   return (
@@ -576,13 +592,18 @@ function WriteExam() {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "14px",
+                        gap: "12px",
+                        minHeight: "50px",
+                        padding: "12px 14px",
+                        cursor: "pointer",
+                        WebkitTapHighlightColor: "transparent",
+                        borderRadius: "12px",
                       }}
                     >
                       <div
                         style={{
-                          width: "32px",
-                          height: "32px",
+                          width: "34px",
+                          height: "34px",
                           borderRadius: "8px",
                           display: "flex",
                           alignItems: "center",
@@ -597,7 +618,7 @@ function WriteExam() {
                         {optionKey}
                       </div>
 
-                      <div style={{ fontSize: "15px", color: isChecked ? "#312e81" : "#1e293b", fontWeight: isChecked ? "600" : "500" }}>
+                      <div style={{ fontSize: "15px", color: isChecked ? "#312e81" : "#1e293b", fontWeight: isChecked ? "600" : "500", wordBreak: "break-word" }}>
                         {currentQuestion.options[optionKey]}
                       </div>
                     </div>
@@ -611,8 +632,10 @@ function WriteExam() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: "28px",
-                  paddingTop: "20px",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  marginTop: "24px",
+                  paddingTop: "18px",
                   borderTop: "1px solid #f1f5f9",
                 }}
               >
@@ -621,7 +644,7 @@ function WriteExam() {
                   className="primary-outlined-btn"
                   disabled={selectedQuestionIndex === 0}
                   onClick={() => setSelectedQuestionIndex(selectedQuestionIndex - 1)}
-                  style={{ opacity: selectedQuestionIndex === 0 ? 0.4 : 1 }}
+                  style={{ opacity: selectedQuestionIndex === 0 ? 0.4 : 1, minHeight: 42, padding: "0 16px" }}
                 >
                   <i className="ri-arrow-left-line"></i> Previous
                 </button>
@@ -631,6 +654,7 @@ function WriteExam() {
                     type="button"
                     className="primary-contained-btn"
                     onClick={() => setSelectedQuestionIndex(selectedQuestionIndex + 1)}
+                    style={{ minHeight: 42, padding: "0 20px" }}
                   >
                     <span>Next</span>
                     <i className="ri-arrow-right-line"></i>
@@ -639,7 +663,7 @@ function WriteExam() {
                   <button
                     type="button"
                     className="primary-contained-btn"
-                    style={{ background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)" }}
+                    style={{ background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)", minHeight: 42, padding: "0 20px" }}
                     onClick={() => {
                       clearInterval(intervalId);
                       calculateResult();
@@ -746,11 +770,11 @@ function WriteExam() {
 
         {/* RESULT VIEW */}
         {view === "result" && (
-          <div style={{ width: "100%", maxWidth: "850px", margin: "20px auto" }}>
+          <div style={{ width: "100%", maxWidth: "850px", margin: "10px auto" }}>
             <div
               className="card-lg"
               style={{
-                padding: "36px",
+                padding: "clamp(20px, 5vw, 36px)",
                 borderRadius: "20px",
                 textAlign: "center",
                 backgroundColor: "#ffffff",
@@ -795,10 +819,10 @@ function WriteExam() {
                 </span>
               </div>
 
-              <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", marginTop: "12px", marginBottom: "4px" }}>
+              <h2 style={{ fontSize: "clamp(18px, 4vw, 24px)", fontWeight: "800", color: "#0f172a", marginTop: "12px", marginBottom: "4px" }}>
                 {examData.name}
               </h2>
-              <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
+              <p style={{ fontSize: "13.5px", color: "#64748b", margin: 0 }}>
                 {result.verdict === "Pass"
                   ? "Congratulations! You successfully cleared the passing threshold."
                   : terminatedDueToCheating
@@ -810,9 +834,9 @@ function WriteExam() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "12px",
-                  margin: "24px 0",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(95px, 1fr))",
+                  gap: "10px",
+                  margin: "20px 0",
                   textAlign: "center",
                 }}
               >

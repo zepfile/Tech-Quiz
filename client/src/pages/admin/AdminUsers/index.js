@@ -483,6 +483,7 @@ function AdminUsers() {
         dataSource={displayedUsers}
         rowKey="_id"
         pagination={{ pageSize: 10, showSizeChanger: true }}
+        scroll={{ x: 750 }}
         locale={{
           emptyText:
             filterRole === "admin"

@@ -131,7 +131,7 @@ function Profile() {
               ? "linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)"
               : "linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0369a1 100%)",
             borderRadius: "20px",
-            padding: "32px",
+            padding: "clamp(16px, 4vw, 32px)",
             marginBottom: "24px",
             color: "#ffffff",
             boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.25)",
@@ -139,7 +139,7 @@ function Profile() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
               <div
                 style={{
                   width: 80,

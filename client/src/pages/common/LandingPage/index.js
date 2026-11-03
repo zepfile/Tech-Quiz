@@ -45,6 +45,9 @@ function LandingPage() {
     return saved === "light" ? false : true; // Pure OLED Night mode by default
   });
 
+  // Mobile navigation drawer state
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   const toggleTheme = () => {
     const next = !isDarkMode;
     setIsDarkMode(next);
@@ -181,7 +184,7 @@ function LandingPage() {
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid ${theme.navBorder}`,
-          padding: "14px 32px",
+          padding: "12px 20px",
           transition: "background-color 0.3s ease, border-color 0.3s ease",
           boxShadow: isDarkMode
             ? "0 4px 25px rgba(0, 0, 0, 0.8)"
@@ -199,14 +202,17 @@ function LandingPage() {
         >
           {/* Brand Logo with New TechQuiz SVG */}
           <BrandLogoWithText
-            size={38}
+            size={36}
             theme={isDarkMode ? "dark" : "light"}
-            onClick={() => navigate("/")}
+            onClick={() => {
+              setMobileNavOpen(false);
+              navigate("/");
+            }}
             subtext="ASSESSMENT PLATFORM"
           />
 
-          {/* Quick Links (Hidden on tiny screens) */}
-          <div style={{ display: "flex", alignItems: "center", gap: 28 }} className="hidden-mobile">
+          {/* Quick Links (Desktop Only) */}
+          <div style={{ alignItems: "center", gap: 28 }} className="desktop-only-flex">
             <a href="#tracks" style={{ color: theme.navLink, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               Assessment Tracks
             </a>
@@ -224,8 +230,8 @@ function LandingPage() {
             </span>
           </div>
 
-          {/* Controls: Day/Night Theme Toggle + Auth Buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Desktop Controls: Day/Night Theme Toggle + Auth Buttons */}
+          <div style={{ alignItems: "center", gap: 12 }} className="desktop-only-flex">
             {/* Day & Night Mode Switcher Button */}
             <button
               type="button"
@@ -314,11 +320,213 @@ function LandingPage() {
               </>
             )}
           </div>
+
+          {/* Mobile Navigation Controls (Theme + Hamburger) */}
+          <div style={{ alignItems: "center", gap: 8 }} className="mobile-only-flex">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title="Toggle Theme"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                border: `1px solid ${theme.themeToggleBorder}`,
+                backgroundColor: theme.themeToggleBg,
+                color: theme.themeToggleText,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 16,
+                cursor: "pointer",
+              }}
+            >
+              {isDarkMode ? "🌙" : "☀️"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              title="Toggle Menu"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                border: `1px solid ${isDarkMode ? "rgba(255,255,255,0.2)" : "#cbd5e1"}`,
+                backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "#ffffff",
+                color: theme.textPrimary,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 22,
+                cursor: "pointer",
+              }}
+            >
+              <i className={mobileNavOpen ? "ri-close-line" : "ri-menu-3-line"}></i>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Menu Drawer */}
+        {mobileNavOpen && (
+          <div
+            style={{
+              marginTop: 12,
+              padding: "16px 8px 8px 8px",
+              borderTop: `1px solid ${theme.navBorder}`,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              backgroundColor: isDarkMode ? "#09090b" : "#ffffff",
+              borderRadius: 14,
+              boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+            }}
+          >
+            <a
+              href="#tracks"
+              onClick={() => setMobileNavOpen(false)}
+              style={{
+                color: theme.textPrimary,
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "10px 14px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <i className="ri-stack-line" style={{ color: "#6366f1" }}></i>
+              Assessment Tracks
+            </a>
+            <a
+              href="#features"
+              onClick={() => setMobileNavOpen(false)}
+              style={{
+                color: theme.textPrimary,
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "10px 14px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <i className="ri-shield-star-line" style={{ color: "#10b981" }}></i>
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              onClick={() => setMobileNavOpen(false)}
+              style={{
+                color: theme.textPrimary,
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "10px 14px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <i className="ri-road-map-line" style={{ color: "#38bdf8" }}></i>
+              How It Works
+            </a>
+            <div
+              onClick={() => {
+                setMobileNavOpen(false);
+                navigate("/leaderboard");
+              }}
+              style={{
+                color: "#eab308",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: "pointer",
+                padding: "10px 14px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <i className="ri-trophy-line"></i>
+              Live Leaderboard
+            </div>
+
+            <div style={{ height: 1, backgroundColor: theme.navBorder, margin: "6px 0" }}></div>
+
+            {/* Mobile Auth Buttons */}
+            {isLoggedIn ? (
+              <button
+                type="button"
+                className="primary-contained-btn"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  navigate("/");
+                }}
+                style={{
+                  width: "100%",
+                  height: 42,
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
+                }}
+              >
+                Go to Portal 🚀
+              </button>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button
+                  type="button"
+                  className="primary-contained-btn"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    navigate("/register");
+                  }}
+                  style={{
+                    width: "100%",
+                    height: 42,
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
+                  }}
+                >
+                  Get Started Free
+                </button>
+                <button
+                  type="button"
+                  className="primary-outlined-btn"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    navigate("/login");
+                  }}
+                  style={{
+                    width: "100%",
+                    height: 40,
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    borderColor: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "#cbd5e1",
+                    color: isDarkMode ? "#ffffff" : "#0f172a",
+                    backgroundColor: isDarkMode ? "transparent" : "#ffffff",
+                  }}
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* 2. HERO SECTION */}
-      <section style={{ padding: "80px 24px 60px 24px", position: "relative" }}>
+      <section style={{ padding: "clamp(40px, 8vw, 80px) 16px 50px 16px", position: "relative" }}>
         {/* Ambient Gradient Glow */}
         <div
           style={{

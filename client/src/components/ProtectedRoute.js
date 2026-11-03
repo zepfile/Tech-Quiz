@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { getUserInfo } from "../apicalls/users";
 import { useDispatch, useSelector } from "react-redux";
 import { SetUser } from "../redux/usersSlice.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
 import { BrandLogo } from "./TechIcons";
 import ProfileModal from "./ProfileModal";
@@ -11,6 +11,12 @@ import ProfileModal from "./ProfileModal";
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { user } = useSelector((state) => state.users);
   const [menu, setMenu] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
   
   // Theme state: Day (Light) vs Night (Dark) mode with localStorage persistence
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -222,17 +228,26 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
   return (
     <div className={`layout ${isDarkMode ? "theme-dark" : "theme-light"}`}>
-      {/* Authentic Full-Height Fixed Anchored Sidebar (Hidden during Proctored Exam) */}
+      {/* Mobile Backdrop Overlay */}
+      {!isExamRunner && (
+        <div
+          className={`mobile-sidebar-backdrop ${mobileMenuOpen ? "active" : ""}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Authentic Full-Height Fixed Anchored Sidebar (Slide-in Drawer on Mobile) */}
       {!isExamRunner && (
         <aside
-          className={`sidebar ${isDarkMode ? "theme-dark" : "theme-light"}`}
-          style={{ width: "250px" }}
+          className={`sidebar ${isDarkMode ? "theme-dark" : "theme-light"} ${
+            mobileMenuOpen ? "mobile-open" : ""
+          }`}
         >
           {/* Brand header */}
           <div
             className="flex items-center gap-3 mb-4 px-2 py-3"
             style={{
-              justifyContent: "flex-start",
+              justifyContent: "space-between",
               borderBottom: isDarkMode
                 ? "1px solid rgba(255, 255, 255, 0.08)"
                 : "1px solid #e2e8f0",
@@ -240,7 +255,10 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           >
             <div
               className="flex items-center gap-3 cursor-pointer"
-              onClick={() => navigate(isAdmin ? "/admin/exams" : "/")}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate(isAdmin ? "/admin/exams" : "/");
+              }}
               title="TechQuiz Home"
             >
               <BrandLogo size={36} />
@@ -274,6 +292,16 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                 </span>
               </div>
             </div>
+
+            {/* Close Button on Mobile Drawer */}
+            <button
+              type="button"
+              className="sidebar-close-btn"
+              onClick={() => setMobileMenuOpen(false)}
+              title="Close Menu"
+            >
+              <i className="ri-close-line"></i>
+            </button>
           </div>
 
           {/* Navigation Menu */}
@@ -284,7 +312,10 @@ function ProtectedRoute({ children, requireAdmin = false }) {
                 <div
                   className={`menu-item ${isActive ? "active-menu-item" : ""}`}
                   key={index}
-                  onClick={item.onClick}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    item.onClick();
+                  }}
                   title={item.title}
                 >
                   {item.icon}
@@ -339,7 +370,10 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           {user && (
             <div
               className="sidebar-user-footer"
-              onClick={() => navigate("/profile")}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate("/profile");
+              }}
               title="Click to view full profile & settings"
               style={{
                 padding: "10px 12px",
@@ -426,6 +460,90 @@ function ProtectedRoute({ children, requireAdmin = false }) {
             </div>
           )}
         </aside>
+      )}
+
+      {/* Mobile Top Navigation Header */}
+      {!isExamRunner && (
+        <header className="mobile-topbar">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate(isAdmin ? "/admin/exams" : "/");
+            }}
+          >
+            <BrandLogo size={28} />
+            <div className="flex flex-col">
+              <span
+                style={{
+                  fontWeight: 800,
+                  color: isDarkMode ? "#ffffff" : "#0f172a",
+                  fontSize: "15px",
+                  letterSpacing: "-0.02em",
+                  lineHeight: "1.1",
+                }}
+              >
+                TechQuiz
+                <span style={{ color: isAdmin ? "#a855f7" : "#0284c7" }}>
+                  {isAdmin ? ".admin" : ".io"}
+                </span>
+              </span>
+              <span
+                style={{
+                  fontSize: "8.5px",
+                  color: isDarkMode ? (isAdmin ? "#c084fc" : "#38bdf8") : (isAdmin ? "#7c3aed" : "#2563eb"),
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {isAdmin ? "ADMIN" : "USER"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={isDarkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
+              style={{
+                border: "none",
+                background: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#f1f5f9",
+                borderRadius: 8,
+                width: 34,
+                height: 34,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                fontSize: 16,
+              }}
+            >
+              {isDarkMode ? "🌙" : "☀️"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              title="Toggle Navigation Menu"
+              style={{
+                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid #cbd5e1",
+                background: isDarkMode ? "rgba(255, 255, 255, 0.05)" : "#ffffff",
+                borderRadius: 8,
+                width: 36,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                fontSize: 20,
+                color: isDarkMode ? "#ffffff" : "#0f172a",
+              }}
+            >
+              <i className={mobileMenuOpen ? "ri-close-line" : "ri-menu-2-line"}></i>
+            </button>
+          </div>
+        </header>
       )}
 
       {/* Main Workspace Body */}

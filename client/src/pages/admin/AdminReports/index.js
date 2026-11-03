@@ -448,6 +448,7 @@ function AdminReports() {
           dataSource={reportsData}
           rowKey={(record) => record._id || record.createdAt}
           pagination={{ pageSize: 8 }}
+          scroll={{ x: 800 }}
         />
       )}
 

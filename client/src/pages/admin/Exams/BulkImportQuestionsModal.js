@@ -263,6 +263,7 @@ function BulkImportQuestionsModal({
               pagination={{ pageSize: 4 }}
               size="small"
               bordered
+              scroll={{ x: 600 }}
             />
           </div>
         )}

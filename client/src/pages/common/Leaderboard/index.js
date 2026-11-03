@@ -675,6 +675,7 @@ function Leaderboard() {
           rowKey={(record) => record.userId + (record.reportId || "")}
           pagination={{ pageSize: 10, showSizeChanger: true }}
           locale={{ emptyText: "No participants have completed assessments for this track yet." }}
+          scroll={{ x: 750 }}
         />
       </div>
     </div>

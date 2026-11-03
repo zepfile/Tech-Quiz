@@ -293,6 +293,7 @@ function Exams() {
         dataSource={filteredExams}
         rowKey="_id"
         pagination={{ pageSize: 6 }}
+        scroll={{ x: 750 }}
       />
     </div>
   );

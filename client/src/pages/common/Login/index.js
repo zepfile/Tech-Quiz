@@ -49,7 +49,7 @@ function Login() {
         alignItems: "center",
         justifyContent: "center",
         background: "linear-gradient(135deg, #0b0f19 0%, #1e1b4b 50%, #312e81 100%)",
-        padding: "24px",
+        padding: "clamp(12px, 3vw, 24px)",
       }}
     >
       <div
@@ -70,7 +70,7 @@ function Login() {
             md={12}
             style={{
               background: "linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%)",
-              padding: "40px 32px",
+              padding: "clamp(24px, 4vw, 40px) clamp(20px, 3vw, 32px)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
@@ -125,7 +125,7 @@ function Login() {
             md={12}
             style={{
               backgroundColor: "#ffffff",
-              padding: "40px 36px",
+              padding: "clamp(24px, 4vw, 40px) clamp(20px, 3vw, 36px)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",

@@ -157,8 +157,22 @@
 }
 
 /* Mobile Responsiveness Utility */
+.desktop-only-flex {
+  display: flex !important;
+}
+
+.mobile-only-flex {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
   .hidden-mobile {
     display: none !important;
+  }
+  .desktop-only-flex {
+    display: none !important;
+  }
+  .mobile-only-flex {
+    display: flex !important;
   }
 }

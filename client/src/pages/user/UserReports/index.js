@@ -363,6 +363,7 @@ function UserReports() {
           dataSource={reportsData}
           rowKey={(record) => record._id || record.createdAt}
           pagination={{ pageSize: 6 }}
+          scroll={{ x: 750 }}
         />
       )}
 
